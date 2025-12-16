@@ -116,6 +116,26 @@
             margin-top: 5px;
         }
 
+        .model-info-display {
+            font-size: 14px;
+            color: #4a5568;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+        }
+
+        .model-info-display span {
+            font-size: 16px;
+        }
+
+        #model-status-icon {
+            font-size: 20px;
+        }
+
+        #model-status-text {
+            flex: 1;
+        }
+
         .btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -449,24 +469,16 @@
             <div class="control-panel">
                 <h2>🎯 Control Panel</h2>
 
-                <!-- Model Selection -->
+                <!-- Model Information (Read-only) -->
                 <div class="form-group">
-                    <label for="model-select">Select Model:</label>
-                    <select id="model-select">
-                        <option value="">Please load available models first</option>
-                    </select>
-                    <small class="form-text">Select the Kronos model to use</small>
-                </div>
-
-                <!-- Device Selection -->
-                <div class="form-group">
-                    <label for="device-select">Select Device:</label>
-                    <select id="device-select">
-                        <option value="cpu">CPU</option>
-                        <option value="cuda">CUDA (NVIDIA GPU)</option>
-                        <option value="mps">MPS (Apple Silicon)</option>
-                    </select>
-                    <small class="form-text">Select the device to run the model on</small>
+                    <label>Model Information:</label>
+                    <div id="model-info-display" class="model-info-display" style="padding: 12px; background: #f7fafc; border-radius: 8px; border: 2px solid #e2e8f0;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span id="model-status-icon">⏳</span>
+                            <span id="model-status-text">Loading model status...</span>
+                        </div>
+                    </div>
+                    <small class="form-text">Model is automatically loaded on startup</small>
                 </div>
 
                 <!-- Model Status -->
@@ -474,35 +486,34 @@
                     Model status information
                 </div>
 
-                <!-- Load Model Button -->
-                <button id="load-model-btn" class="btn btn-secondary">
-                    🔄 Load Model
-                </button>
-
                 <hr style="margin: 20px 0; border: 1px solid #e2e8f0;">
 
-                <!-- Data File Selection -->
+                <!-- Stock Code Input -->
                 <div class="form-group">
-                    <label for="data-file-select">Select Data File:</label>
-                    <select id="data-file-select">
-                        <option value="">Please load data file list first</option>
-                    </select>
-                    <small class="form-text">Select K-line data file from data directory</small>
+                    <label for="stock-code-input">股票代码:</label>
+                    <input type="text" id="stock-code-input" placeholder="例如: 000001, 002594" maxlength="10">
+                    <small class="form-text">输入A股股票代码（如：000001 表示平安银行）</small>
+                </div>
+
+                <!-- Historical Data Length -->
+                <div class="form-group">
+                    <label for="lookback-input">历史数据长度:</label>
+                    <input type="number" id="lookback-input" value="400" min="100" max="2000" step="50">
+                    <small class="form-text">用于预测的历史数据长度（100-2000，推荐400）</small>
                 </div>
 
                 <button id="load-data-btn" class="btn btn-secondary">
-                    📁 Load Data
+                    📥 加载股票数据
                 </button>
 
                 <!-- Data Information Display -->
                 <div id="data-info" class="data-info" style="display: none;">
-                    <h3>📊 Data Information</h3>
-                    <p><strong>Rows:</strong> <span id="data-rows">-</span></p>
-                    <p><strong>Columns:</strong> <span id="data-cols">-</span></p>
-                    <p><strong>Time Range:</strong> <span id="data-time-range">-</span></p>
-                    <p><strong>Price Range:</strong> <span id="data-price-range">-</span></p>
-                    <p><strong>Time Frequency:</strong> <span id="data-timeframe">-</span></p>
-                    <p><strong>Prediction Columns:</strong> <span id="data-prediction-cols">-</span></p>
+                    <h3>📊 数据信息</h3>
+                    <p><strong>股票代码:</strong> <span id="data-symbol">-</span></p>
+                    <p><strong>数据行数:</strong> <span id="data-rows">-</span></p>
+                    <p><strong>时间范围:</strong> <span id="data-time-range">-</span></p>
+                    <p><strong>价格范围:</strong> <span id="data-price-range">-</span></p>
+                    <p><strong>时间频率:</strong> <span id="data-timeframe">-</span></p>
                 </div>
 
                 <hr style="margin: 20px 0; border: 1px solid #e2e8f0;">
@@ -533,15 +544,9 @@
 
                 <!-- Prediction Parameters -->
                 <div class="form-group">
-                    <label for="lookback">Lookback Window Size:</label>
-                    <input type="number" id="lookback" value="400" readonly>
-                    <small class="form-text">Fixed at 400 data points</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="pred-len">Prediction Length:</label>
-                    <input type="number" id="pred-len" value="120" readonly>
-                    <small class="form-text">Fixed at 120 data points</small>
+                    <label for="pred-len">预测长度:</label>
+                    <input type="number" id="pred-len" value="120" min="10" max="500" step="10">
+                    <small class="form-text">预测未来多少个数据点（推荐120）</small>
                 </div>
 
                 <!-- Prediction Quality Parameters -->
@@ -649,11 +654,11 @@
         async function initializeApp() {
             console.log('🚀 Initializing Kronos Web UI...');
             
-            // Load available models
-            await loadAvailableModels();
+            // Check model status on page load
+            await updateModelStatus();
             
             // Load data file list
-            await loadDataFiles();
+            // No need to load data files anymore
             
             // Set up event listeners
             setupEventListeners();
@@ -664,121 +669,71 @@
             console.log('✅ Application initialization completed');
         }
 
-        // Load available models
-        async function loadAvailableModels() {
-            try {
-                const response = await axios.get('/api/available-models');
-                if (response.data.model_available) {
-                    availableModels = response.data.models;
-                    populateModelSelect();
-                    console.log('✅ Available models loaded successfully:', availableModels);
-                } else {
-                    console.warn('⚠️ Kronos model library not available');
-                    showStatus('warning', 'Kronos model library not available, will use simulated prediction');
-                }
-            } catch (error) {
-                console.error('❌ Failed to load available models:', error);
-                showStatus('error', 'Failed to load available models');
-            }
-        }
-
-        // Populate model selection dropdown
-        function populateModelSelect() {
-            const modelSelect = document.getElementById('model-select');
-            modelSelect.innerHTML = '<option value="">Please select model</option>';
-            
-            Object.entries(availableModels).forEach(([key, model]) => {
-                const option = document.createElement('option');
-                option.value = key;
-                option.textContent = `${model.name} (${model.params}) - ${model.description}`;
-                modelSelect.appendChild(option);
-            });
-        }
-
-        // Load model
-        async function loadModel() {
-            const modelKey = document.getElementById('model-select').value;
-            const device = document.getElementById('device-select').value;
-            
-            if (!modelKey) {
-                showStatus('error', 'Please select a model to load');
+        // Update model status (only called once on page load, stops checking after success)
+        async function updateModelStatus() {
+            // If model is already loaded, don't check again
+            if (modelLoaded) {
                 return;
             }
             
             try {
-                showLoading(true);
-                document.getElementById('load-model-btn').disabled = true;
-                
-                const response = await axios.post('/api/load-model', {
-                    model_key: modelKey,
-                    device: device
-                });
-                
-                if (response.data.success) {
-                    modelLoaded = true;
-                    showStatus('success', response.data.message);
-                    updateModelStatus();
-                    document.getElementById('predict-btn').disabled = false;
-                    console.log('✅ Model loaded successfully:', response.data.model_info);
-                } else {
-                    showStatus('error', response.data.error);
-                }
-            } catch (error) {
-                console.error('❌ Model loading failed:', error);
-                showStatus('error', `Model loading failed: ${error.response?.data?.error || error.message}`);
-            } finally {
-                showLoading(false);
-                document.getElementById('load-model-btn').disabled = false;
-            }
-        }
-
-        // Update model status
-        async function updateModelStatus() {
-            try {
                 const response = await axios.get('/api/model-status');
                 const status = response.data;
                 
+                const statusIcon = document.getElementById('model-status-icon');
+                const statusText = document.getElementById('model-status-text');
+                const predictBtn = document.getElementById('predict-btn');
+                
                 if (status.loaded) {
-                    showStatus('success', `Model loaded: ${status.current_model.name} on ${status.current_model.device}`);
+                    // Model is loaded - mark as loaded and stop checking
+                    statusIcon.textContent = '✅';
+                    statusText.innerHTML = `<strong>${status.current_model.name}</strong> (${status.current_model.params}) on <strong>${status.current_model.device.toUpperCase()}</strong>`;
+                    modelLoaded = true;
+                    predictBtn.disabled = false;
+                    showStatus('success', `模型已就绪: ${status.current_model.name} on ${status.current_model.device}`);
+                    console.log('✅ Model loaded successfully, stopping status checks');
                 } else if (status.available) {
-                    showStatus('info', 'Model available but not loaded');
+                    // Model library available but not loaded yet
+                    statusIcon.textContent = '⏳';
+                    statusText.textContent = '模型正在加载中...';
+                    modelLoaded = false;
+                    predictBtn.disabled = true;
+                    // Retry after 3 seconds if not loaded yet
+                    setTimeout(updateModelStatus, 3000);
                 } else {
-                    showStatus('warning', 'Model library not available');
+                    // Model library not available - stop checking
+                    statusIcon.textContent = '❌';
+                    statusText.textContent = '模型库不可用';
+                    modelLoaded = false;
+                    predictBtn.disabled = true;
+                    showStatus('error', '模型库不可用，请安装依赖');
+                    console.log('❌ Model library not available, stopping status checks');
                 }
             } catch (error) {
                 console.error('❌ Failed to get model status:', error);
+                const statusIcon = document.getElementById('model-status-icon');
+                const statusText = document.getElementById('model-status-text');
+                statusIcon.textContent = '❌';
+                statusText.textContent = '获取模型状态失败';
+                modelLoaded = false;
+                document.getElementById('predict-btn').disabled = true;
+                // Retry after 5 seconds on error
+                setTimeout(updateModelStatus, 5000);
             }
         }
 
-        // Load data file list
-        async function loadDataFiles() {
-            try {
-                const response = await axios.get('/api/data-files');
-                const dataFiles = response.data;
-                
-                const dataFileSelect = document.getElementById('data-file-select');
-                dataFileSelect.innerHTML = '<option value="">Please select data file</option>';
-                
-                dataFiles.forEach(file => {
-                    const option = document.createElement('option');
-                    option.value = file.path;
-                    option.textContent = `${file.name} (${file.size})`;
-                    dataFileSelect.appendChild(option);
-                });
-                
-                console.log('✅ Data file list loaded successfully:', dataFiles);
-            } catch (error) {
-                console.error('❌ Failed to load data file list:', error);
-                showStatus('error', 'Failed to load data file list');
-            }
-        }
-
-        // Load data file
+        // Load data from akshare
         async function loadData() {
-            const filePath = document.getElementById('data-file-select').value;
+            const symbol = document.getElementById('stock-code-input').value.trim();
+            const lookback = parseInt(document.getElementById('lookback-input').value);
             
-            if (!filePath) {
-                showStatus('error', 'Please select a data file to load');
+            if (!symbol) {
+                showStatus('error', '请输入股票代码');
+                return;
+            }
+            
+            if (lookback < 100 || lookback > 2000) {
+                showStatus('error', '历史数据长度必须在100-2000之间');
                 return;
             }
             
@@ -787,11 +742,12 @@
                 document.getElementById('load-data-btn').disabled = true;
                 
                 const response = await axios.post('/api/load-data', {
-                    file_path: filePath
+                    symbol: symbol,
+                    lookback: lookback
                 });
                 
                 if (response.data.success) {
-                    currentDataFile = filePath;
+                    currentDataFile = symbol; // Store symbol instead of file path
                     currentDataInfo = response.data.data_info;
                     showDataInfo(response.data.data_info);
                     showStatus('success', response.data.message);
@@ -807,7 +763,7 @@
                 }
             } catch (error) {
                 console.error('❌ Data loading failed:', error);
-                showStatus('error', `Data loading failed: ${error.response?.data?.error || error.message}`);
+                showStatus('error', `数据加载失败: ${error.response?.data?.error || error.message}`);
             } finally {
                 showLoading(false);
                 document.getElementById('load-data-btn').disabled = false;
@@ -816,16 +772,45 @@
 
         // Display data information
         function showDataInfo(dataInfo) {
-            document.getElementById('data-info').style.display = 'block';
-            document.getElementById('data-rows').textContent = dataInfo.rows;
-            document.getElementById('data-cols').textContent = dataInfo.columns.length;
-            document.getElementById('data-time-range').textContent = `${dataInfo.start_date} to ${dataInfo.end_date}`;
-            document.getElementById('data-price-range').textContent = `${dataInfo.price_range.min.toFixed(4)} - ${dataInfo.price_range.max.toFixed(4)}`;
-            document.getElementById('data-timeframe').textContent = dataInfo.timeframe;
-            document.getElementById('data-prediction-cols').textContent = dataInfo.prediction_columns.join(', ');
+            const dataInfoDiv = document.getElementById('data-info');
+            if (!dataInfoDiv) {
+                console.error('data-info element not found');
+                return;
+            }
             
-            // Initialize time window slider
-            initializeTimeWindowSlider(dataInfo);
+            dataInfoDiv.style.display = 'block';
+            
+            // Safely set each element with null checks
+            const symbolEl = document.getElementById('data-symbol');
+            if (symbolEl) {
+                symbolEl.textContent = dataInfo.symbol || '-';
+            }
+            
+            const rowsEl = document.getElementById('data-rows');
+            if (rowsEl) {
+                rowsEl.textContent = dataInfo.rows || '-';
+            }
+            
+            const timeRangeEl = document.getElementById('data-time-range');
+            if (timeRangeEl && dataInfo.start_date && dataInfo.end_date) {
+                try {
+                    const startDate = new Date(dataInfo.start_date);
+                    const endDate = new Date(dataInfo.end_date);
+                    timeRangeEl.textContent = `${startDate.toLocaleDateString('zh-CN')} ~ ${endDate.toLocaleDateString('zh-CN')}`;
+                } catch (e) {
+                    timeRangeEl.textContent = `${dataInfo.start_date} ~ ${dataInfo.end_date}`;
+                }
+            }
+            
+            const priceRangeEl = document.getElementById('data-price-range');
+            if (priceRangeEl && dataInfo.price_range) {
+                priceRangeEl.textContent = `${dataInfo.price_range.min.toFixed(2)} ~ ${dataInfo.price_range.max.toFixed(2)}`;
+            }
+            
+            const timeframeEl = document.getElementById('data-timeframe');
+            if (timeframeEl) {
+                timeframeEl.textContent = dataInfo.timeframe || '-';
+            }
         }
 
                     // Time window slider related variables
@@ -1036,7 +1021,7 @@
             }
             
             if (!modelLoaded) {
-                showStatus('error', 'Please load model first');
+                showStatus('error', 'Model is not loaded. Please check server logs or wait for model to load.');
                 return;
             }
             
@@ -1044,22 +1029,7 @@
                 showLoading(true);
                 document.getElementById('predict-btn').disabled = true;
                 
-                const lookback = parseInt(document.getElementById('lookback').value);
                 const predLen = parseInt(document.getElementById('pred-len').value);
-                
-                // Get selected time range from time window slider
-                const startHandle = document.getElementById('start-handle');
-                const startPercentage = parseFloat(startHandle.style.left) / 100;
-                
-                if (!sliderData) {
-                    showStatus('error', 'Time window slider not initialized');
-                    return;
-                }
-                
-                // Calculate selected time range
-                const totalTime = sliderData.endDate.getTime() - sliderData.startDate.getTime();
-                const startTime = sliderData.startDate.getTime() + (totalTime * startPercentage);
-                const startDate = new Date(startTime);
                 
                 // Get prediction quality parameters
                 const temperature = parseFloat(document.getElementById('temperature').value);
@@ -1067,10 +1037,7 @@
                 const sampleCount = parseInt(document.getElementById('sample-count').value);
                 
                 let predictionParams = {
-                    file_path: currentDataFile,
-                    lookback: lookback,
                     pred_len: predLen,
-                    start_date: startDate.toISOString().slice(0, 16), // Format as YYYY-MM-DDTHH:MM
                     temperature: temperature,
                     top_p: topP,
                     sample_count: sampleCount
@@ -1188,9 +1155,6 @@
 
         // Set up event listeners
         function setupEventListeners() {
-            // Load model button
-            document.getElementById('load-model-btn').addEventListener('click', loadModel);
-            
             // Load data button
             document.getElementById('load-data-btn').addEventListener('click', loadData);
             
