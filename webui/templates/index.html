@@ -224,6 +224,56 @@
             height: 600px;
         }
 
+        /* Prediction ready state styles */
+        .prediction-ready-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 500px;
+            padding: 40px 20px;
+        }
+
+        .ready-icon {
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+
+        .ready-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin: 0 0 15px 0;
+        }
+
+        .ready-tips {
+            font-size: 1rem;
+            color: #718096;
+            margin: 0 0 40px 0;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .ready-btn {
+            min-width: 180px;
+            font-size: 16px;
+            padding: 14px 32px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .ready-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(72, 187, 120, 0.4);
+        }
+
+        .ready-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
         .data-info {
             background: #f7fafc;
             border: 1px solid #e2e8f0;
@@ -247,79 +297,6 @@
             color: #2d3748;
         }
 
-        /* Time window selector styles */
-        .time-window-container {
-            background: #f7fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .time-window-container h3 {
-            color: #4a5568;
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-        }
-
-        .time-window-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-            font-size: 12px;
-            color: #666;
-        }
-
-        .time-window-slider {
-            position: relative;
-            margin-bottom: 10px;
-        }
-
-        .slider-track {
-            position: relative;
-            height: 6px;
-            background: #e2e8f0;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-
-        .slider-handle {
-            position: absolute;
-            top: -7px;
-            width: 20px;
-            height: 20px;
-            background: #667eea;
-            border-radius: 50%;
-            cursor: grab;
-            border: 2px solid white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            z-index: 10;
-        }
-
-        .slider-handle:hover {
-            background: #5a67d8;
-            transform: scale(1.1);
-        }
-
-        .slider-handle:active {
-            cursor: grabbing;
-        }
-
-        .slider-selection {
-            position: absolute;
-            height: 6px;
-            background: #48bb78;
-            border-radius: 3px;
-            top: 0;
-        }
-
-        .slider-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            color: #999;
-            margin-top: 5px;
-        }
 
         /* Comparison analysis styles */
         .comparison-section {
@@ -518,30 +495,6 @@
 
                 <hr style="margin: 20px 0; border: 1px solid #e2e8f0;">
 
-                <!-- Time Window Selector -->
-                <div class="time-window-container">
-                    <h3>⏰ Time Window Selection</h3>
-                    <div class="time-window-info">
-                        <span id="window-start">Start: --</span>
-                        <span id="window-end">End: --</span>
-                        <span id="window-size">Window Size: 400+120=520 data points</span>
-                    </div>
-                    
-                    <div class="time-window-slider">
-                        <div class="slider-track">
-                            <div class="slider-handle start-handle" id="start-handle"></div>
-                            <div class="slider-selection" id="slider-selection"></div>
-                            <div class="slider-handle end-handle" id="end-handle"></div>
-                        </div>
-                        <div class="slider-labels">
-                            <span id="min-label">Earliest</span>
-                            <span id="max-label">Latest</span>
-                        </div>
-                    </div>
-                    
-                    <small class="form-text">Drag slider to select time window position for 520 data points, green area represents fixed 400+120 data point range</small>
-                </div>
-
                 <!-- Prediction Parameters -->
                 <div class="form-group">
                     <label for="pred-len">预测长度:</label>
@@ -570,10 +523,6 @@
                     <small class="form-text">Generate multiple prediction samples to improve quality (recommended 1-3)</small>
                 </div>
 
-                <button id="predict-btn" class="btn btn-success" disabled>
-                    🔮 Start Prediction
-                </button>
-
                 <!-- Loading Status -->
                 <div id="loading" class="loading">
                     <div class="spinner"></div>
@@ -582,8 +531,34 @@
             </div>
 
             <div class="chart-container">
-                <h2>📈 Prediction Results Chart</h2>
-                <div id="chart"></div>
+                <h2 style="margin-bottom: 20px;">📈 预测结果图表</h2>
+                
+                <!-- Initial state: Ready prompt -->
+                <div id="prediction-ready-state" class="prediction-ready-state">
+                    <div class="ready-icon">
+                        <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="120" height="120" rx="20" fill="#f7fafc"/>
+                            <rect x="10" y="10" width="100" height="100" rx="15" fill="#e2e8f0"/>
+                            <!-- Grid lines -->
+                            <line x1="20" y1="30" x2="100" y2="30" stroke="#cbd5e0" stroke-width="1"/>
+                            <line x1="20" y1="50" x2="100" y2="50" stroke="#cbd5e0" stroke-width="1"/>
+                            <line x1="20" y1="70" x2="100" y2="70" stroke="#cbd5e0" stroke-width="1"/>
+                            <line x1="20" y1="90" x2="100" y2="90" stroke="#cbd5e0" stroke-width="1"/>
+                            <!-- Chart bars -->
+                            <rect x="30" y="60" width="20" height="40" rx="4" fill="#48bb78"/>
+                            <rect x="50" y="40" width="20" height="60" rx="4" fill="#ed64a6"/>
+                            <rect x="70" y="50" width="20" height="50" rx="4" fill="#4299e1"/>
+                        </svg>
+                    </div>
+                    <h3 class="ready-title">准备就绪</h3>
+                    <p class="ready-tips" id="ready-tips-text">请在左侧输入股票代码并获取数据</p>
+                    <button id="predict-btn" class="btn btn-success ready-btn" disabled>
+                        ⚡ 开始预测
+                    </button>
+                </div>
+                
+                <!-- Chart display (hidden initially) -->
+                <div id="chart" style="display: none;"></div>
                 
                 <!-- Comparison Analysis -->
                 <div id="comparison-section" class="comparison-section" style="display: none;">
@@ -657,14 +632,16 @@
             // Check model status on page load
             await updateModelStatus();
             
+            // Initialize prediction tips
+            updatePredictionTips();
+            
             // Load data file list
             // No need to load data files anymore
             
             // Set up event listeners
             setupEventListeners();
             
-            // Initialize time slider
-            initializeTimeSlider();
+            // Time slider removed - no longer needed
             
             console.log('✅ Application initialization completed');
         }
@@ -689,7 +666,7 @@
                     statusIcon.textContent = '✅';
                     statusText.innerHTML = `<strong>${status.current_model.name}</strong> (${status.current_model.params}) on <strong>${status.current_model.device.toUpperCase()}</strong>`;
                     modelLoaded = true;
-                    predictBtn.disabled = false;
+                    updatePredictionTips();
                     showStatus('success', `模型已就绪: ${status.current_model.name} on ${status.current_model.device}`);
                     console.log('✅ Model loaded successfully, stopping status checks');
                 } else if (status.available) {
@@ -698,6 +675,7 @@
                     statusText.textContent = '模型正在加载中...';
                     modelLoaded = false;
                     predictBtn.disabled = true;
+                    updatePredictionTips();
                     // Retry after 3 seconds if not loaded yet
                     setTimeout(updateModelStatus, 3000);
                 } else {
@@ -706,6 +684,7 @@
                     statusText.textContent = '模型库不可用';
                     modelLoaded = false;
                     predictBtn.disabled = true;
+                    updatePredictionTips();
                     showStatus('error', '模型库不可用，请安装依赖');
                     console.log('❌ Model library not available, stopping status checks');
                 }
@@ -752,14 +731,16 @@
                     showDataInfo(response.data.data_info);
                     showStatus('success', response.data.message);
                     
-                    // Update prediction button status
+                    // Update prediction button status and tips
                     if (modelLoaded) {
                         document.getElementById('predict-btn').disabled = false;
                     }
+                    updatePredictionTips();
                     
                     console.log('✅ Data loaded successfully:', response.data.data_info);
                 } else {
                     showStatus('error', response.data.error);
+                    updatePredictionTips();
                 }
             } catch (error) {
                 console.error('❌ Data loading failed:', error);
@@ -767,6 +748,27 @@
             } finally {
                 showLoading(false);
                 document.getElementById('load-data-btn').disabled = false;
+            }
+        }
+
+        // Update prediction tips based on current status
+        function updatePredictionTips() {
+            const tipsText = document.getElementById('ready-tips-text');
+            const predictBtn = document.getElementById('predict-btn');
+            if (!tipsText || !predictBtn) return;
+            
+            if (!modelLoaded) {
+                tipsText.textContent = '模型正在加载中，请稍候...';
+                tipsText.style.color = '#718096';
+                predictBtn.disabled = true;
+            } else if (!currentDataFile) {
+                tipsText.textContent = '请在左侧输入股票代码并获取数据';
+                tipsText.style.color = '#718096';
+                predictBtn.disabled = true;
+            } else {
+                tipsText.textContent = '一切就绪！可以开始预测了';
+                tipsText.style.color = '#48bb78';
+                predictBtn.disabled = false;
             }
         }
 
@@ -811,223 +813,45 @@
             if (timeframeEl) {
                 timeframeEl.textContent = dataInfo.timeframe || '-';
             }
+            
+            // Update prediction tips after data is loaded
+            updatePredictionTips();
         }
 
-                    // Time window slider related variables
-        let sliderData = null;
-        let isDragging = false;
-        let currentHandle = null;
-
-        // Initialize time window slider
-        function initializeTimeSlider() {
-            // Set up slider event listeners
-            setupSliderEventListeners();
-        }
-
-        // Set up slider event listeners
-        function setupSliderEventListeners() {
-            const startHandle = document.getElementById('start-handle');
-            const endHandle = document.getElementById('end-handle');
-            const track = document.querySelector('.slider-track');
-            
-            // Start dragging
-            startHandle.addEventListener('mousedown', (e) => {
-                isDragging = true;
-                currentHandle = 'start';
-                e.preventDefault();
-            });
-            
-            endHandle.addEventListener('mousedown', (e) => {
-                isDragging = true;
-                currentHandle = 'end';
-                e.preventDefault();
-            });
-            
-            // Dragging
-            document.addEventListener('mousemove', (e) => {
-                if (!isDragging) return;
-                
-                const rect = track.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const percentage = Math.max(0, Math.min(1, x / rect.width));
-                
-                if (currentHandle === 'start') {
-                    updateStartHandle(percentage);
-                } else if (currentHandle === 'end') {
-                    updateEndHandle(percentage);
-                }
-                
-                updateSliderFromHandles();
-            });
-            
-            // End dragging
-            document.addEventListener('mouseup', () => {
-                isDragging = false;
-                currentHandle = null;
-            });
-            
-            // Click track to set position directly
-            track.addEventListener('click', (e) => {
-                const rect = track.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const percentage = Math.max(0, Math.min(1, x / rect.width));
-                
-                // Determine which handle is closer to the click position
-                const startHandle = document.getElementById('start-handle');
-                const endHandle = document.getElementById('end-handle');
-                const startRect = startHandle.getBoundingClientRect();
-                const endRect = endHandle.getBoundingClientRect();
-                
-                if (Math.abs(x - (startRect.left - rect.left)) < Math.abs(x - (endRect.left - rect.left))) {
-                    updateStartHandle(percentage);
-                } else {
-                    updateEndHandle(percentage);
-                }
-                
-                updateSliderFromHandles();
-            });
-        }
-
-        // Update start handle position
-        function updateStartHandle(percentage) {
-            const startHandle = document.getElementById('start-handle');
-            const selection = document.getElementById('slider-selection');
-            
-            // Fixed window size of 520 data points
-            const windowSize = 520;
-            const totalRows = sliderData ? sliderData.totalRows : 1000;
-            const windowPercentage = windowSize / totalRows;
-            
-            // Ensure start handle doesn't cause window to exceed data range
-            if (percentage + windowPercentage > 1) {
-                percentage = 1 - windowPercentage;
-            }
-            
-            startHandle.style.left = (percentage * 100) + '%';
-            selection.style.left = (percentage * 100) + '%';
-            selection.style.width = (windowPercentage * 100) + '%';
-            
-            // Automatically adjust end handle position to maintain fixed window size
-            const endHandle = document.getElementById('end-handle');
-            endHandle.style.left = ((percentage + windowPercentage) * 100) + '%';
-        }
-
-        // Update end handle position
-        function updateEndHandle(percentage) {
-            const endHandle = document.getElementById('end-handle');
-            const selection = document.getElementById('slider-selection');
-            
-            // Fixed window size of 520 data points
-            const windowSize = 520;
-            const totalRows = sliderData ? sliderData.totalRows : 1000;
-            const windowPercentage = windowSize / totalRows;
-            
-            // Ensure end handle doesn't cause window to exceed data range
-            if (percentage - windowPercentage < 0) {
-                percentage = windowPercentage;
-            }
-            
-            endHandle.style.left = (percentage * 100) + '%';
-            selection.style.left = ((percentage - windowPercentage) * 100) + '%';
-            selection.style.width = (windowPercentage * 100) + '%';
-            
-            // Automatically adjust start handle position to maintain fixed window size
-            const startHandle = document.getElementById('start-handle');
-            startHandle.style.left = ((percentage - windowPercentage) * 100) + '%';
-        }
-
-        // Update slider display based on handle positions
-        function updateSliderFromHandles() {
-            const startHandle = document.getElementById('start-handle');
-            const endHandle = document.getElementById('end-handle');
-            
-            const startPercentage = parseFloat(startHandle.style.left) / 100;
-            const endPercentage = parseFloat(endHandle.style.left) / 100;
-            
-            if (!sliderData) return;
-            
-            // Calculate selected time range
-            const totalTime = sliderData.endDate.getTime() - sliderData.startDate.getTime();
-            const startTime = sliderData.startDate.getTime() + (totalTime * startPercentage);
-            const endTime = sliderData.startDate.getTime() + (totalTime * endPercentage);
-            
-            const startDate = new Date(startTime);
-            const endDate = new Date(endTime);
-            
-            // Update display information
-            document.getElementById('window-start').textContent = `Start: ${startDate.toLocaleDateString()}`;
-            document.getElementById('window-end').textContent = `End: ${endDate.toLocaleDateString()}`;
-            
-            // Display fixed window size
-            document.getElementById('window-size').textContent = `Window Size: 400 + 120 = 520 data points (fixed)`;
-            
-            // Input field values remain fixed
-            document.getElementById('lookback').value = 400;
-            document.getElementById('pred-len').value = 120;
-        }
-
-        // Update slider based on input fields
-        function updateSliderFromInputs() {
-            if (!sliderData) return;
-            
-            // Fixed window size: 400 + 120 = 520 data points
-            const lookback = 400;
-            const predLen = 120;
-            const windowSize = lookback + predLen; // Fixed at 520
-            
-            // Calculate slider position
-            const totalRows = sliderData.totalRows;
-            
-            if (windowSize > totalRows) {
-                // If window size exceeds total data amount, show error
-                showStatus('error', `Insufficient data, need at least ${windowSize} data points, currently only ${totalRows} available`);
-                return;
-            }
-            
-            // Calculate slider position (default select first half of data)
-            const startPercentage = 0.1; // Start from 10%
-            const endPercentage = startPercentage + (windowSize / totalRows);
-            
-            // Update handle positions
-            updateStartHandle(startPercentage);
-            updateEndHandle(endPercentage);
-            
-            // Update display information
-            updateSliderFromHandles();
-        }
-
-        // Initialize time window slider
-        function initializeTimeWindowSlider(dataInfo) {
-            sliderData = {
-                startDate: new Date(dataInfo.start_date),
-                endDate: new Date(dataInfo.end_date),
-                totalRows: dataInfo.rows,
-                timeframe: dataInfo.timeframe
-            };
-            
-            // Set slider labels
-            document.getElementById('min-label').textContent = dataInfo.start_date.split('T')[0];
-            document.getElementById('max-label').textContent = dataInfo.end_date.split('T')[0];
-            
-            // Initialize slider position
-            updateSliderFromInputs();
-        }
 
         // Start prediction
         async function startPrediction() {
             if (!currentDataFile) {
-                showStatus('error', 'Please load data file first');
+                showStatus('error', '请先加载股票数据');
+                const tipsText = document.getElementById('ready-tips-text');
+                if (tipsText) {
+                    tipsText.textContent = '请先加载股票数据';
+                    tipsText.style.color = '#e53e3e';
+                }
                 return;
             }
             
             if (!modelLoaded) {
-                showStatus('error', 'Model is not loaded. Please check server logs or wait for model to load.');
+                showStatus('error', '模型未加载。请检查服务器日志或等待模型加载。');
+                const tipsText = document.getElementById('ready-tips-text');
+                if (tipsText) {
+                    tipsText.textContent = '模型未加载，请稍候...';
+                    tipsText.style.color = '#e53e3e';
+                }
                 return;
             }
             
             try {
                 showLoading(true);
-                document.getElementById('predict-btn').disabled = true;
+                const predictBtn = document.getElementById('predict-btn');
+                predictBtn.disabled = true;
+                
+                // Update tips during prediction
+                const tipsText = document.getElementById('ready-tips-text');
+                if (tipsText) {
+                    tipsText.textContent = '正在生成预测，请稍候...';
+                    tipsText.style.color = '#667eea';
+                }
                 
                 const predLen = parseInt(document.getElementById('pred-len').value);
                 
@@ -1051,23 +875,56 @@
                     // Display prediction results
                     displayPredictionResult(response.data);
                     showStatus('success', response.data.message);
+                    
+                    // Hide ready state and show chart
+                    const readyState = document.getElementById('prediction-ready-state');
+                    const chartDiv = document.getElementById('chart');
+                    if (readyState) readyState.style.display = 'none';
+                    if (chartDiv) chartDiv.style.display = 'block';
                 } else {
                     showStatus('error', response.data.error);
+                    const tipsText = document.getElementById('ready-tips-text');
+                    if (tipsText) {
+                        tipsText.textContent = '预测失败，请重试';
+                        tipsText.style.color = '#e53e3e';
+                    }
                 }
             } catch (error) {
                 console.error('❌ Prediction failed:', error);
-                showStatus('error', `Prediction failed: ${error.response?.data?.error || error.message}`);
+                showStatus('error', `预测失败: ${error.response?.data?.error || error.message}`);
+                const tipsText = document.getElementById('ready-tips-text');
+                if (tipsText) {
+                    tipsText.textContent = '预测失败，请检查网络连接或重试';
+                    tipsText.style.color = '#e53e3e';
+                }
             } finally {
                 showLoading(false);
-                document.getElementById('predict-btn').disabled = false;
+                const predictBtn = document.getElementById('predict-btn');
+                predictBtn.disabled = false;
+                const tipsText = document.getElementById('ready-tips-text');
+                if (tipsText && tipsText.style.color === '#e53e3e') {
+                    // Reset color after 3 seconds if it was set to error
+                    setTimeout(() => {
+                        updatePredictionTips();
+                    }, 3000);
+                } else {
+                    updatePredictionTips();
+                }
             }
         }
 
         // Display prediction results
         function displayPredictionResult(result) {
-            // Display chart
-            const chartData = JSON.parse(result.chart);
-            Plotly.newPlot('chart', chartData.data, chartData.layout);
+            // Hide ready state and show chart
+            const readyState = document.getElementById('prediction-ready-state');
+            const chartDiv = document.getElementById('chart');
+            if (readyState) readyState.style.display = 'none';
+            if (chartDiv) {
+                chartDiv.style.display = 'block';
+                // Display chart
+                const chartData = JSON.parse(result.chart);
+                Plotly.newPlot('chart', chartData.data, chartData.layout);
+            }
             
             // Display comparison analysis (if actual data exists)
             if (result.has_comparison) {
