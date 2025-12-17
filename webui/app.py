@@ -273,122 +273,112 @@ def save_prediction_results(file_path, prediction_type, prediction_results, actu
         return None
 
 def create_prediction_chart(df, pred_df, lookback, pred_len, actual_df=None, historical_start_idx=0):
-    """Create prediction chart"""
-    # Use specified historical data start position, not always from the beginning of df
+    """Create prediction chart with price candlestick and volume bar chart"""
+    from plotly.subplots import make_subplots
+    
+    # Use specified historical data start position
     if historical_start_idx + lookback + pred_len <= len(df):
-        # Display lookback historical points + pred_len prediction points starting from specified position
         historical_df = df.iloc[historical_start_idx:historical_start_idx+lookback]
-        prediction_range = range(historical_start_idx+lookback, historical_start_idx+lookback+pred_len)
     else:
-        # If data is insufficient, adjust to maximum available range
         available_lookback = min(lookback, len(df) - historical_start_idx)
-        available_pred_len = min(pred_len, max(0, len(df) - historical_start_idx - available_lookback))
         historical_df = df.iloc[historical_start_idx:historical_start_idx+available_lookback]
-        prediction_range = range(historical_start_idx+available_lookback, historical_start_idx+available_lookback+available_pred_len)
     
-    # Create chart
-    fig = go.Figure()
-    
-    # Add historical data (candlestick chart)
-    fig.add_trace(go.Candlestick(
-        x=historical_df['timestamps'] if 'timestamps' in historical_df.columns else historical_df.index,
-        open=historical_df['open'],
-        high=historical_df['high'],
-        low=historical_df['low'],
-        close=historical_df['close'],
-        name='Historical Data (400 data points)',
-        increasing_line_color='#26A69A',
-        decreasing_line_color='#EF5350'
-    ))
-    
-    # Add prediction data (candlestick chart)
+    # Calculate prediction timestamps
+    pred_timestamps = None
     if pred_df is not None and len(pred_df) > 0:
-        # Calculate prediction data timestamps - ensure continuity with historical data
         if 'timestamps' in df.columns and len(historical_df) > 0:
-            # Start from the last timestamp of historical data, create prediction timestamps with the same time interval
             last_timestamp = historical_df['timestamps'].iloc[-1]
             time_diff = df['timestamps'].iloc[1] - df['timestamps'].iloc[0] if len(df) > 1 else pd.Timedelta(hours=1)
-            
             pred_timestamps = pd.date_range(
                 start=last_timestamp + time_diff,
                 periods=len(pred_df),
                 freq=time_diff
             )
         else:
-            # If no timestamps, use index
             pred_timestamps = range(len(historical_df), len(historical_df) + len(pred_df))
-        
+    
+    # Create subplots: price chart on top, volume chart on bottom
+    fig = make_subplots(
+        rows=2, cols=1,
+        shared_xaxes=True,
+        vertical_spacing=0.1,
+        row_heights=[0.7, 0.3],
+        subplot_titles=('收盘价预测K线图（元）', '成交量矩阵图')
+    )
+    
+    # Historical price data (candlestick)
+    hist_timestamps = historical_df['timestamps'] if 'timestamps' in historical_df.columns else historical_df.index
+    fig.add_trace(go.Candlestick(
+        x=hist_timestamps,
+        open=historical_df['open'],
+        high=historical_df['high'],
+        low=historical_df['low'],
+        close=historical_df['close'],
+        name='历史数据',
+        increasing_line_color='#26A69A',
+        decreasing_line_color='#EF5350',
+        showlegend=False
+    ), row=1, col=1)
+    
+    # Prediction price data (candlestick)
+    if pred_df is not None and len(pred_df) > 0 and pred_timestamps is not None:
         fig.add_trace(go.Candlestick(
             x=pred_timestamps,
             open=pred_df['open'],
             high=pred_df['high'],
             low=pred_df['low'],
             close=pred_df['close'],
-            name='Prediction Data (120 data points)',
+            name='预测数据',
             increasing_line_color='#66BB6A',
-            decreasing_line_color='#FF7043'
-        ))
+            decreasing_line_color='#FF7043',
+            showlegend=False
+        ), row=1, col=1)
     
-    # Add actual data for comparison (if exists)
-    if actual_df is not None and len(actual_df) > 0:
-        # Actual data should be in the same time period as prediction data
-        if 'timestamps' in df.columns:
-            # Actual data should use the same timestamps as prediction data to ensure time alignment
-            if 'pred_timestamps' in locals():
-                actual_timestamps = pred_timestamps
-            else:
-                # If no prediction timestamps, calculate from the last timestamp of historical data
-                if len(historical_df) > 0:
-                    last_timestamp = historical_df['timestamps'].iloc[-1]
-                    time_diff = df['timestamps'].iloc[1] - df['timestamps'].iloc[0] if len(df) > 1 else pd.Timedelta(hours=1)
-                    actual_timestamps = pd.date_range(
-                        start=last_timestamp + time_diff,
-                        periods=len(actual_df),
-                        freq=time_diff
-                    )
-                else:
-                    actual_timestamps = range(len(historical_df), len(historical_df) + len(actual_df))
-        else:
-            actual_timestamps = range(len(historical_df), len(historical_df) + len(actual_df))
-        
-        fig.add_trace(go.Candlestick(
-            x=actual_timestamps,
-            open=actual_df['open'],
-            high=actual_df['high'],
-            low=actual_df['low'],
-            close=actual_df['close'],
-            name='Actual Data (120 data points)',
-            increasing_line_color='#FF9800',
-            decreasing_line_color='#F44336'
-        ))
+    # Historical volume data
+    if 'volume' in historical_df.columns:
+        fig.add_trace(go.Bar(
+            x=hist_timestamps,
+            y=historical_df['volume'],
+            name='历史成交量',
+            marker_color='#90CAF9',
+            showlegend=False
+        ), row=2, col=1)
+    
+    # Prediction volume data
+    if pred_df is not None and len(pred_df) > 0 and pred_timestamps is not None and 'volume' in pred_df.columns:
+        fig.add_trace(go.Bar(
+            x=pred_timestamps,
+            y=pred_df['volume'],
+            name='预测成交量',
+            marker_color='#81C784',
+            showlegend=False
+        ), row=2, col=1)
     
     # Update layout
     fig.update_layout(
-        title='Kronos Financial Prediction Results - 400 Historical Points + 120 Prediction Points vs 120 Actual Points',
-        xaxis_title='Time',
-        yaxis_title='Price',
         template='plotly_white',
         height=600,
-        showlegend=True
+        showlegend=False,
+        margin=dict(l=50, r=50, t=50, b=50)
     )
+    
+    # Update y-axis labels
+    fig.update_yaxes(title_text="价格（元）", row=1, col=1)
+    fig.update_yaxes(title_text="成交量", row=2, col=1)
+    fig.update_xaxes(title_text="日期", row=2, col=1)
     
     # Ensure x-axis time continuity
     if 'timestamps' in historical_df.columns:
-        # Get all timestamps and sort them
-        all_timestamps = []
-        if len(historical_df) > 0:
-            all_timestamps.extend(historical_df['timestamps'])
-        if 'pred_timestamps' in locals():
+        all_timestamps = list(historical_df['timestamps'])
+        if pred_timestamps is not None:
             all_timestamps.extend(pred_timestamps)
-        if 'actual_timestamps' in locals():
-            all_timestamps.extend(actual_timestamps)
-        
         if all_timestamps:
             all_timestamps = sorted(all_timestamps)
             fig.update_xaxes(
                 range=[all_timestamps[0], all_timestamps[-1]],
                 rangeslider_visible=False,
-                type='date'
+                type='date',
+                row=2, col=1
             )
     
     return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
@@ -444,6 +434,9 @@ def load_data():
             else:
                 return f"{avg_diff.days} days"
         
+        # 获取最新价格（最后一条数据的收盘价）
+        latest_price = float(df['close'].iloc[-1]) if len(df) > 0 else 0.0
+        
         # 返回数据信息
         data_info = {
             'symbol': symbol,
@@ -455,6 +448,7 @@ def load_data():
                 'min': float(df[['open', 'high', 'low', 'close']].min().min()),
                 'max': float(df[['open', 'high', 'low', 'close']].max().max())
             },
+            'latest_price': latest_price,
             'prediction_columns': ['open', 'high', 'low', 'close'] + (['volume'] if 'volume' in df.columns else []),
             'timeframe': detect_timeframe(df)
         }
@@ -602,6 +596,39 @@ def predict():
         except Exception as e:
             print(f"Failed to save prediction results: {e}")
         
+        # Calculate prediction statistics
+        price_stats = {}
+        volume_stats = {}
+        
+        if len(pred_df) > 0:
+            # Price statistics
+            start_price = float(pred_df['close'].iloc[0])
+            end_price = float(pred_df['close'].iloc[-1])
+            price_change_pct = ((end_price - start_price) / start_price * 100) if start_price > 0 else 0
+            max_price = float(pred_df['high'].max())
+            min_price = float(pred_df['low'].min())
+            
+            price_stats = {
+                'start_price': start_price,
+                'end_price': end_price,
+                'price_change_pct': price_change_pct,
+                'max_price': max_price,
+                'min_price': min_price,
+                'prediction_days': len(pred_df)
+            }
+            
+            # Volume statistics
+            if 'volume' in pred_df.columns:
+                avg_volume = float(pred_df['volume'].mean())
+                max_volume = float(pred_df['volume'].max())
+                min_volume = float(pred_df['volume'].min())
+                
+                volume_stats = {
+                    'avg_volume': avg_volume,
+                    'max_volume': max_volume,
+                    'min_volume': min_volume
+                }
+        
         return jsonify({
             'success': True,
             'prediction_type': prediction_type,
@@ -609,6 +636,8 @@ def predict():
             'prediction_results': prediction_results,
             'actual_data': actual_data,
             'has_comparison': len(actual_data) > 0,
+            'price_stats': price_stats,
+            'volume_stats': volume_stats,
             'message': f'Prediction completed, generated {pred_len} prediction points' + (f', including {len(actual_data)} actual data points for comparison' if len(actual_data) > 0 else '')
         })
         
