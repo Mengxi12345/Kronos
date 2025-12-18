@@ -866,26 +866,31 @@
     <div class="container">
         <div class="header">
             <div class="header-content">
-                <h1>Kronos 智能金融预测平台</h1>
-                <p class="subtitle">基于深度学习的K线数据预测分析系统</p>
-                <p class="tagline">AI-Powered Financial K-Line Prediction & Analysis Platform</p>
+                <div style="position: absolute; top: 20px; right: 20px;">
+                    <button id="lang-toggle" class="btn btn-secondary" style="width: auto; padding: 8px 16px; font-size: 14px; background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.3); color: white; backdrop-filter: blur(10px);">
+                        🌐 <span id="lang-text">中文</span>
+                    </button>
+                </div>
+                <h1 data-i18n="header.title">Kronos 智能金融预测平台</h1>
+                <p class="subtitle" data-i18n="header.subtitle">基于深度学习的K线数据预测分析系统</p>
+                <p class="tagline" data-i18n="header.tagline">AI-Powered Financial K-Line Prediction & Analysis Platform</p>
             </div>
         </div>
 
         <div class="main-content">
             <div class="control-panel">
-                <h2>🎯 Control Panel</h2>
+                <h2 data-i18n="controlPanel">🎯 Control Panel</h2>
 
                 <!-- Model Information (Read-only) -->
                 <div class="form-group">
-                    <label>Model Information:</label>
+                    <label data-i18n="modelInformation">Model Information:</label>
                     <div id="model-info-display" class="model-info-display" style="padding: 12px; background: #f7fafc; border-radius: 8px; border: 2px solid #e2e8f0;">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <span id="model-status-icon">⏳</span>
-                            <span id="model-status-text">Loading model status...</span>
+                            <span id="model-status-text" data-i18n="modelLoading">Loading model status...</span>
                 </div>
                     </div>
-                    <small class="form-text">Model is automatically loaded on startup</small>
+                    <small class="form-text" data-i18n="modelAutoLoad">Model is automatically loaded on startup</small>
                 </div>
 
                 <!-- Model Status -->
@@ -897,60 +902,60 @@
 
                 <!-- Stock Code Input -->
                 <div class="form-group">
-                    <label for="stock-code-input">股票代码:</label>
-                    <input type="text" id="stock-code-input" placeholder="例如: 000001, 002594" maxlength="10">
-                    <small class="form-text">输入A股股票代码（如：000001 表示平安银行）</small>
+                    <label for="stock-code-input" data-i18n="stockCode">股票代码:</label>
+                    <input type="text" id="stock-code-input" data-placeholder-i18n="stockCodePlaceholder" placeholder="例如: 000001, 002594" maxlength="10">
+                    <small class="form-text" data-i18n="stockCodeHint">输入A股股票代码（如：000001 表示平安银行）</small>
                 </div>
 
                 <!-- Historical Data Length -->
                 <div class="form-group">
-                    <label for="lookback-input">历史数据长度:</label>
+                    <label for="lookback-input" data-i18n="historicalDataLength">历史数据长度:</label>
                     <input type="number" id="lookback-input" value="400" min="100" max="2000" step="50">
-                    <small class="form-text">用于预测的历史数据长度（100-2000，推荐400）</small>
+                    <small class="form-text" data-i18n="historicalDataHint">用于预测的历史数据长度（100-2000，推荐400）</small>
                 </div>
 
                 <button id="load-data-btn" class="btn btn-secondary">
-                    <span class="btn-text">📥 加载股票数据</span>
+                    <span class="btn-text" data-i18n="loadStockData">📥 加载股票数据</span>
                 </button>
 
                 <!-- Data Information Display -->
                 <div id="data-info" class="data-info" style="display: none;">
-                    <h3>📊 数据信息</h3>
-                    <p><strong>股票代码:</strong> <span id="data-symbol">-</span></p>
-                    <p><strong>历史数据天数:</strong> <span id="data-days">-</span></p>
-                    <p><strong>时间范围:</strong> <span id="data-time-range">-</span></p>
-                    <p><strong>价格范围:</strong> <span id="data-price-range">-</span></p>
-                    <p><strong>最新价格:</strong> <span id="data-latest-price" style="font-size: 1.1rem; font-weight: 600; color: #16a34a;">-</span> 元</p>
+                    <h3 data-i18n="dataInfo">📊 数据信息</h3>
+                    <p><strong data-i18n="stockCodeLabel">股票代码:</strong> <span id="data-symbol">-</span></p>
+                    <p><strong data-i18n="historicalDays">历史数据天数:</strong> <span id="data-days">-</span></p>
+                    <p><strong data-i18n="timeRange">时间范围:</strong> <span id="data-time-range">-</span></p>
+                    <p><strong data-i18n="priceRange">价格范围:</strong> <span id="data-price-range">-</span></p>
+                    <p><strong data-i18n="latestPrice">最新价格:</strong> <span id="data-latest-price" style="font-size: 1.1rem; font-weight: 600; color: #16a34a;">-</span> <span data-i18n="yuan">元</span></p>
                 </div>
 
                 <hr style="margin: 20px 0; border: 1px solid #e2e8f0;">
 
                 <!-- Prediction Parameters -->
                 <div class="form-group">
-                    <label for="pred-len">预测长度:</label>
+                    <label for="pred-len" data-i18n="predictionLength">预测长度:</label>
                     <input type="number" id="pred-len" value="120" min="10" max="500" step="10">
-                    <small class="form-text">预测未来多少个数据点（推荐120）</small>
+                    <small class="form-text" data-i18n="predictionLengthHint">预测未来多少个数据点（推荐120）</small>
                 </div>
 
                 <!-- Prediction Quality Parameters -->
                 <div class="form-group">
-                    <label for="temperature">Prediction Temperature (T):</label>
+                    <label for="temperature" data-i18n="temperature">Prediction Temperature (T):</label>
                     <input type="range" id="temperature" value="1.0" min="0.1" max="2.0" step="0.1">
                     <span id="temperature-value">1.0</span>
-                    <small class="form-text">Controls prediction randomness, higher values make predictions more diverse, lower values make predictions more conservative</small>
+                    <small class="form-text" data-i18n="temperatureHint">Controls prediction randomness, higher values make predictions more diverse, lower values make predictions more conservative</small>
                 </div>
 
                 <div class="form-group">
-                    <label for="top-p">Nucleus Sampling Parameter (top_p):</label>
+                    <label for="top-p" data-i18n="topP">Nucleus Sampling Parameter (top_p):</label>
                     <input type="range" id="top-p" value="0.9" min="0.1" max="1.0" step="0.1">
                     <span id="top-p-value">0.9</span>
-                    <small class="form-text">Controls prediction diversity, higher values consider broader probability distributions</small>
+                    <small class="form-text" data-i18n="topPHint">Controls prediction diversity, higher values consider broader probability distributions</small>
                 </div>
 
                 <div class="form-group">
-                    <label for="sample-count">Sample Count:</label>
+                    <label for="sample-count" data-i18n="sampleCount">Sample Count:</label>
                     <input type="number" id="sample-count" value="1" min="1" max="5" step="1">
-                    <small class="form-text">Generate multiple prediction samples to improve quality (recommended 1-3)</small>
+                    <small class="form-text" data-i18n="sampleCountHint">Generate multiple prediction samples to improve quality (recommended 1-3)</small>
                 </div>
 
                 <!-- Loading Status -->
@@ -962,13 +967,13 @@
 
             <div class="chart-container">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h2 style="margin: 0;">📈 预测结果图表</h2>
+                    <h2 style="margin: 0;" data-i18n="predictionResults">📈 预测结果图表</h2>
                     <div style="display: flex; gap: 10px;">
                         <button id="refresh-btn" class="btn btn-secondary" style="width: auto; padding: 10px 20px; font-size: 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white;">
-                            🔄 刷新界面
+                            <span data-i18n="refreshInterface">🔄 刷新界面</span>
                         </button>
                         <button id="toggle-details-btn" class="btn btn-secondary" style="display: none; width: auto; padding: 10px 20px; font-size: 14px;">
-                            📊 查看详细数据
+                            <span data-i18n="viewDetails">📊 查看详细数据</span>
                         </button>
                     </div>
                 </div>
@@ -978,8 +983,8 @@
                     <div class="loading-spinner-large">
                         <div class="spinner-large"></div>
                     </div>
-                    <h3 class="loading-title">正在加载股票数据</h3>
-                    <p class="loading-text">请稍候，正在从服务器获取数据...</p>
+                    <h3 class="loading-title" data-i18n="loadingStockDataTitle">正在加载股票数据</h3>
+                    <p class="loading-text" data-i18n="loadingStockDataText">请稍候，正在从服务器获取数据...</p>
                 </div>
                 
                 <!-- Initial state: Ready prompt -->
@@ -999,10 +1004,10 @@
                             <rect x="70" y="50" width="20" height="50" rx="4" fill="#4299e1"/>
                         </svg>
                     </div>
-                    <h3 class="ready-title">准备就绪</h3>
-                    <p class="ready-tips" id="ready-tips-text">请在左侧输入股票代码并获取数据</p>
+                    <h3 class="ready-title" data-i18n="ready">准备就绪</h3>
+                    <p class="ready-tips" id="ready-tips-text" data-i18n="readyHint">请在左侧输入股票代码并获取数据</p>
                     <button id="predict-btn" class="btn btn-success ready-btn" disabled>
-                        ⚡ 开始预测
+                        <span data-i18n="startPrediction">⚡ 开始预测</span>
                     </button>
                 </div>
                 
@@ -1011,8 +1016,8 @@
                     <div class="loading-spinner-large">
                         <div class="spinner-large"></div>
                     </div>
-                    <h3 class="loading-title">正在生成预测</h3>
-                    <p class="loading-text">请稍候，模型正在处理数据...</p>
+                    <h3 class="loading-title" data-i18n="generatingPrediction">正在生成预测</h3>
+                    <p class="loading-text" data-i18n="generatingHint">请稍候，模型正在处理数据...</p>
                 </div>
                 
                 <!-- Chart display (hidden initially) -->
@@ -1024,48 +1029,48 @@
                     
                     <!-- Price Prediction Summary -->
                     <div class="details-section">
-                        <h4>💰 价格预测</h4>
+                        <h4 data-i18n="pricePrediction">💰 价格预测</h4>
                         <div class="stats-grid">
                             <div class="stat-item">
-                                <span class="stat-label">起始价格</span>
+                                <span class="stat-label" data-i18n="startPrice">起始价格</span>
                                 <div class="stat-value-wrapper">
                                     <span class="stat-value" id="detail-start-price">-</span>
-                                    <span class="stat-unit">元</span>
+                                    <span class="stat-unit" data-i18n="yuan">元</span>
                                 </div>
                             </div>
                             <div class="stat-item">
-                                <span class="stat-label">结束价格</span>
+                                <span class="stat-label" data-i18n="endPrice">结束价格</span>
                                 <div class="stat-value-wrapper">
                                     <span class="stat-value" id="detail-end-price">-</span>
-                                    <span class="stat-unit">元</span>
+                                    <span class="stat-unit" data-i18n="yuan">元</span>
                                 </div>
                             </div>
                             <div class="stat-item">
-                                <span class="stat-label">涨跌幅</span>
+                                <span class="stat-label" data-i18n="priceChange">涨跌幅</span>
                                 <div class="stat-value-wrapper">
                                     <span class="stat-value" id="detail-price-change">-</span>
                                     <span class="stat-unit">%</span>
                                 </div>
                             </div>
                             <div class="stat-item">
-                                <span class="stat-label">预测最高价</span>
+                                <span class="stat-label" data-i18n="maxPrice">预测最高价</span>
                                 <div class="stat-value-wrapper">
                                     <span class="stat-value" id="detail-max-price">-</span>
-                                    <span class="stat-unit">元</span>
+                                    <span class="stat-unit" data-i18n="yuan">元</span>
                                 </div>
                             </div>
                             <div class="stat-item">
-                                <span class="stat-label">预测最低价</span>
+                                <span class="stat-label" data-i18n="minPrice">预测最低价</span>
                                 <div class="stat-value-wrapper">
                                     <span class="stat-value" id="detail-min-price">-</span>
-                                    <span class="stat-unit">元</span>
+                                    <span class="stat-unit" data-i18n="yuan">元</span>
                                 </div>
                             </div>
                             <div class="stat-item">
-                                <span class="stat-label">预测天数</span>
+                                <span class="stat-label" data-i18n="predictionDays">预测天数</span>
                                 <div class="stat-value-wrapper">
                                     <span class="stat-value" id="detail-pred-days">-</span>
-                                    <span class="stat-unit">天</span>
+                                    <span class="stat-unit" data-i18n="day">天</span>
                                 </div>
                             </div>
                         </div>
@@ -1073,27 +1078,27 @@
                     
                     <!-- Volume Prediction Summary -->
                     <div class="details-section">
-                        <h4>📈 成交量预测</h4>
+                        <h4 data-i18n="volumePrediction">📈 成交量预测</h4>
                         <div class="stats-grid">
                             <div class="stat-item">
-                                <span class="stat-label">平均成交量</span>
+                                <span class="stat-label" data-i18n="avgVolume">平均成交量</span>
                                 <div class="stat-value-wrapper">
                                     <span class="stat-value" id="detail-avg-volume">-</span>
-                                    <span class="stat-unit">手</span>
+                                    <span class="stat-unit" data-i18n="hand">手</span>
                                 </div>
                             </div>
                             <div class="stat-item">
-                                <span class="stat-label">最大成交量</span>
+                                <span class="stat-label" data-i18n="maxVolume">最大成交量</span>
                                 <div class="stat-value-wrapper">
                                     <span class="stat-value" id="detail-max-volume">-</span>
-                                    <span class="stat-unit">手</span>
+                                    <span class="stat-unit" data-i18n="hand">手</span>
                                 </div>
                             </div>
                             <div class="stat-item">
-                                <span class="stat-label">最小成交量</span>
+                                <span class="stat-label" data-i18n="minVolume">最小成交量</span>
                                 <div class="stat-value-wrapper">
                                     <span class="stat-value" id="detail-min-volume">-</span>
-                                    <span class="stat-unit">手</span>
+                                    <span class="stat-unit" data-i18n="hand">手</span>
                                 </div>
                             </div>
                         </div>
@@ -1102,9 +1107,9 @@
                     <!-- Detailed Data Table -->
                     <div class="details-section">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                            <h4 style="margin: 0;">📋 预测数据详情</h4>
+                            <h4 style="margin: 0;" data-i18n="predictionDetails">📋 预测数据详情</h4>
                             <div style="display: flex; align-items: center; gap: 10px;">
-                                <label for="table-page-size" style="font-size: 0.9rem; color: #718096;">每页显示:</label>
+                                <label for="table-page-size" style="font-size: 0.9rem; color: #718096;" data-i18n="displayPerPage">每页显示:</label>
                                 <select id="table-page-size" style="padding: 6px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.9rem;">
                                     <option value="10" selected>10</option>
                                     <option value="20">20</option>
@@ -1117,12 +1122,12 @@
                             <table class="prediction-table">
                                 <thead>
                                     <tr>
-                                        <th>日期</th>
-                                        <th>开盘价</th>
-                                        <th>最高价</th>
-                                        <th>最低价</th>
-                                        <th>收盘价</th>
-                                        <th>成交量</th>
+                                        <th data-i18n="date">日期</th>
+                                        <th data-i18n="openPrice">开盘价</th>
+                                        <th data-i18n="highPrice">最高价</th>
+                                        <th data-i18n="lowPrice">最低价</th>
+                                        <th data-i18n="closePrice">收盘价</th>
+                                        <th data-i18n="volume">成交量</th>
                                     </tr>
                                 </thead>
                                 <tbody id="prediction-table-body">
@@ -1135,13 +1140,13 @@
                                 <span id="pagination-info-text">显示 0-0 条，共 0 条</span>
                             </div>
                             <div class="pagination-controls">
-                                <button id="pagination-first" class="pagination-btn" disabled>⏮ 首页</button>
-                                <button id="pagination-prev" class="pagination-btn" disabled>◀ 上一页</button>
+                                <button id="pagination-first" class="pagination-btn" disabled data-i18n="firstPage">⏮ 首页</button>
+                                <button id="pagination-prev" class="pagination-btn" disabled data-i18n="prevPage">◀ 上一页</button>
                                 <div class="pagination-pages" id="pagination-pages">
                                     <!-- Page numbers will be inserted here -->
                                 </div>
-                                <button id="pagination-next" class="pagination-btn" disabled>下一页 ▶</button>
-                                <button id="pagination-last" class="pagination-btn" disabled>末页 ⏭</button>
+                                <button id="pagination-next" class="pagination-btn" disabled data-i18n="nextPage">下一页 ▶</button>
+                                <button id="pagination-last" class="pagination-btn" disabled data-i18n="lastPage">末页 ⏭</button>
                             </div>
                         </div>
                     </div>
@@ -1201,6 +1206,322 @@
     </div>
 
     <script>
+        // Internationalization (i18n)
+        const i18n = {
+            'zh-CN': {
+                'header.title': 'Kronos 智能金融预测平台',
+                'header.subtitle': '基于深度学习的K线数据预测分析系统',
+                'header.tagline': 'AI-Powered Financial K-Line Prediction & Analysis Platform',
+                'controlPanel': '控制面板',
+                'modelInformation': '模型信息',
+                'modelAutoLoad': '模型在启动时自动加载',
+                'modelLoading': '正在加载模型状态...',
+                'modelReady': '模型已就绪',
+                'modelUnavailable': '模型库不可用',
+                'stockCode': '股票代码',
+                'stockCodePlaceholder': '例如: 000001, 002594',
+                'stockCodeHint': '输入A股股票代码（如：000001 表示平安银行）',
+                'historicalDataLength': '历史数据长度',
+                'historicalDataHint': '用于预测的历史数据长度（100-2000，推荐400）',
+                'loadStockData': '加载股票数据',
+                'loadingStockData': '加载中...',
+                'dataInfo': '数据信息',
+                'stockCodeLabel': '股票代码',
+                'historicalDays': '历史数据天数',
+                'timeRange': '时间范围',
+                'priceRange': '价格范围',
+                'latestPrice': '最新价格',
+                'yuan': '元',
+                'loadingStockDataTitle': '正在加载股票数据',
+                'loadingStockDataText': '请稍候，正在从服务器获取数据...',
+                'historicalDataLengthRange': '历史数据长度必须在100-2000之间',
+                'pleaseEnterStockCodeError': '请输入股票代码',
+                'dataLoadFailedPrefix': '数据加载失败',
+                'predictionFailedPrefix': '预测失败',
+                'interfaceRefreshedMsg': '界面已刷新，可以重新开始',
+                'modelNotLoadedError': '模型未加载。请检查服务器日志或等待模型加载。',
+                'predictionLength': '预测长度',
+                'predictionLengthHint': '预测未来多少个数据点（推荐120）',
+                'temperature': '预测温度 (T)',
+                'temperatureHint': '控制预测随机性，值越高预测越多样化，值越低预测越保守',
+                'topP': '核采样参数 (top_p)',
+                'topPHint': '控制预测多样性，值越高考虑更广泛的概率分布',
+                'sampleCount': '样本数量',
+                'sampleCountHint': '生成多个预测样本以提高质量（推荐1-3）',
+                'predictionResults': '预测结果图表',
+                'refreshInterface': '刷新界面',
+                'viewDetails': '查看详细数据',
+                'hideDetails': '隐藏详细数据',
+                'ready': '准备就绪',
+                'readyHint': '请在左侧输入股票代码并获取数据',
+                'readyAllSet': '一切就绪！可以开始预测了',
+                'modelLoadingWait': '模型正在加载中，请稍候...',
+                'pleaseLoadDataFirst': '请先加载股票数据',
+                'modelNotLoaded': '模型未加载，请稍候...',
+                'dataLoadFailed': '数据加载失败，请重试',
+                'dataLoadFailedNetwork': '数据加载失败，请检查网络连接或重试',
+                'predictionFailed': '预测失败，请重试',
+                'predictionFailedNetwork': '预测失败，请检查网络连接或重试',
+                'startPrediction': '开始预测',
+                'generatingPrediction': '正在生成预测',
+                'generatingHint': '请稍候，模型正在处理数据...',
+                'pricePrediction': '价格预测',
+                'startPrice': '起始价格',
+                'endPrice': '结束价格',
+                'priceChange': '涨跌幅',
+                'maxPrice': '预测最高价',
+                'minPrice': '预测最低价',
+                'predictionDays': '预测天数',
+                'volumePrediction': '成交量预测',
+                'avgVolume': '平均成交量',
+                'maxVolume': '最大成交量',
+                'minVolume': '最小成交量',
+                'predictionDetails': '预测数据详情',
+                'displayPerPage': '每页显示',
+                'date': '日期',
+                'openPrice': '开盘价',
+                'highPrice': '最高价',
+                'lowPrice': '最低价',
+                'closePrice': '收盘价',
+                'volume': '成交量',
+                'hand': '手',
+                'day': '天',
+                'show': '显示',
+                'total': '共',
+                'items': '条',
+                'firstPage': '首页',
+                'prevPage': '上一页',
+                'nextPage': '下一页',
+                'lastPage': '末页',
+                'interfaceRefreshed': '界面已刷新，可以重新开始',
+                'interfaceRefreshedMsg': '界面已刷新，可以重新开始',
+                'pleaseEnterStockCode': '请输入股票代码',
+                'pleaseLoadData': '请先加载股票数据',
+                'dataLoaded': '数据加载成功',
+                'predictionCompleted': '预测完成',
+                'error': '错误',
+                'loadingStockDataTitle': '正在加载股票数据',
+                'loadingStockDataText': '请稍候，正在从服务器获取数据...',
+                'historicalDataLengthRange': '历史数据长度必须在100-2000之间',
+                'pleaseEnterStockCodeError': '请输入股票代码',
+                'dataLoadFailedPrefix': '数据加载失败',
+                'predictionFailedPrefix': '预测失败',
+                'modelNotLoadedError': '模型未加载。请检查服务器日志或等待模型加载。'
+            },
+            'en-US': {
+                'header.title': 'Kronos Intelligent Financial Prediction Platform',
+                'header.subtitle': 'Deep Learning-based K-Line Data Prediction & Analysis System',
+                'header.tagline': 'AI-Powered Financial K-Line Prediction & Analysis Platform',
+                'controlPanel': 'Control Panel',
+                'modelInformation': 'Model Information',
+                'modelAutoLoad': 'Model is automatically loaded on startup',
+                'modelLoading': 'Loading model status...',
+                'modelReady': 'Model ready',
+                'modelUnavailable': 'Model library unavailable',
+                'stockCode': 'Stock Code',
+                'stockCodePlaceholder': 'e.g.: 000001, 002594',
+                'stockCodeHint': 'Enter A-share stock code (e.g.: 000001 represents Ping An Bank)',
+                'historicalDataLength': 'Historical Data Length',
+                'historicalDataHint': 'Historical data length for prediction (100-2000, recommended 400)',
+                'loadStockData': 'Load Stock Data',
+                'loadingStockData': 'Loading...',
+                'dataInfo': 'Data Information',
+                'stockCodeLabel': 'Stock Code',
+                'historicalDays': 'Historical Days',
+                'timeRange': 'Time Range',
+                'priceRange': 'Price Range',
+                'latestPrice': 'Latest Price',
+                'yuan': 'Yuan',
+                'loadingStockDataTitle': 'Loading Stock Data',
+                'loadingStockDataText': 'Please wait, fetching data from server...',
+                'historicalDataLengthRange': 'Historical data length must be between 100-2000',
+                'pleaseEnterStockCodeError': 'Please enter stock code',
+                'dataLoadFailedPrefix': 'Data loading failed',
+                'predictionFailedPrefix': 'Prediction failed',
+                'interfaceRefreshedMsg': 'Interface refreshed, ready to start',
+                'modelNotLoadedError': 'Model not loaded. Please check server logs or wait for model to load.',
+                'predictionLength': 'Prediction Length',
+                'predictionLengthHint': 'Number of future data points to predict (recommended 120)',
+                'temperature': 'Prediction Temperature (T)',
+                'temperatureHint': 'Controls prediction randomness, higher values make predictions more diverse, lower values make predictions more conservative',
+                'topP': 'Nucleus Sampling Parameter (top_p)',
+                'topPHint': 'Controls prediction diversity, higher values consider broader probability distributions',
+                'sampleCount': 'Sample Count',
+                'sampleCountHint': 'Generate multiple prediction samples to improve quality (recommended 1-3)',
+                'predictionResults': 'Prediction Results Chart',
+                'refreshInterface': 'Refresh Interface',
+                'viewDetails': 'View Detailed Data',
+                'hideDetails': 'Hide Detailed Data',
+                'ready': 'Ready',
+                'readyHint': 'Please enter stock code on the left and load data',
+                'readyAllSet': 'All set! Ready to start prediction',
+                'modelLoadingWait': 'Model is loading, please wait...',
+                'pleaseLoadDataFirst': 'Please load stock data first',
+                'modelNotLoaded': 'Model not loaded, please wait...',
+                'dataLoadFailed': 'Data loading failed, please retry',
+                'dataLoadFailedNetwork': 'Data loading failed, please check network connection or retry',
+                'predictionFailed': 'Prediction failed, please retry',
+                'predictionFailedNetwork': 'Prediction failed, please check network connection or retry',
+                'startPrediction': 'Start Prediction',
+                'generatingPrediction': 'Generating Prediction',
+                'generatingHint': 'Please wait, model is processing data...',
+                'pricePrediction': 'Price Prediction',
+                'startPrice': 'Start Price',
+                'endPrice': 'End Price',
+                'priceChange': 'Price Change %',
+                'maxPrice': 'Max Price',
+                'minPrice': 'Min Price',
+                'predictionDays': 'Prediction Days',
+                'volumePrediction': 'Volume Prediction',
+                'avgVolume': 'Average Volume',
+                'maxVolume': 'Max Volume',
+                'minVolume': 'Min Volume',
+                'predictionDetails': 'Prediction Data Details',
+                'displayPerPage': 'Display per page',
+                'date': 'Date',
+                'openPrice': 'Open',
+                'highPrice': 'High',
+                'lowPrice': 'Low',
+                'closePrice': 'Close',
+                'volume': 'Volume',
+                'hand': 'Hands',
+                'day': 'Days',
+                'show': 'Show',
+                'total': 'Total',
+                'items': 'items',
+                'paginationInfoDefault': 'Show 0-0 items, Total 0 items',
+                'firstPage': 'First',
+                'prevPage': 'Previous',
+                'nextPage': 'Next',
+                'lastPage': 'Last',
+                'interfaceRefreshed': 'Interface refreshed, ready to start',
+                'interfaceRefreshedMsg': 'Interface refreshed, ready to start',
+                'pleaseEnterStockCode': 'Please enter stock code',
+                'pleaseLoadData': 'Please load stock data first',
+                'dataLoaded': 'Data loaded successfully',
+                'predictionCompleted': 'Prediction completed',
+                'error': 'Error',
+                'loadingStockDataTitle': 'Loading Stock Data',
+                'loadingStockDataText': 'Please wait, fetching data from server...',
+                'historicalDataLengthRange': 'Historical data length must be between 100-2000',
+                'pleaseEnterStockCodeError': 'Please enter stock code',
+                'dataLoadFailedPrefix': 'Data loading failed',
+                'predictionFailedPrefix': 'Prediction failed',
+                'modelNotLoadedError': 'Model not loaded. Please check server logs or wait for model to load.'
+            }
+        };
+
+        // Current language
+        let currentLang = localStorage.getItem('preferredLanguage') || 'zh-CN';
+
+        // Get translation
+        function t(key) {
+            return i18n[currentLang] && i18n[currentLang][key] ? i18n[currentLang][key] : key;
+        }
+
+        // Update all text elements
+        function updateLanguage() {
+            // Update elements with data-i18n attribute
+            // Exclude model-status-text as it's dynamically updated by updateModelStatus()
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                // Skip model-status-text as it's managed by updateModelStatus()
+                if (el.id === 'model-status-text') {
+                    return;
+                }
+                const key = el.getAttribute('data-i18n');
+                if (key && i18n[currentLang] && i18n[currentLang][key]) {
+                    el.textContent = t(key);
+                }
+            });
+
+            // Update language toggle button text
+            const langText = document.getElementById('lang-text');
+            if (langText) {
+                langText.textContent = currentLang === 'zh-CN' ? '中文' : 'English';
+            }
+            
+            // Update other dynamic texts
+            updateDynamicTexts();
+            
+            // Update pagination button texts
+            updatePaginationButtonTexts();
+        }
+        
+        // Update pagination button texts
+        function updatePaginationButtonTexts() {
+            const firstBtn = document.getElementById('pagination-first');
+            const prevBtn = document.getElementById('pagination-prev');
+            const nextBtn = document.getElementById('pagination-next');
+            const lastBtn = document.getElementById('pagination-last');
+            
+            if (firstBtn) firstBtn.textContent = currentLang === 'zh-CN' ? '⏮ 首页' : '⏮ First';
+            if (prevBtn) prevBtn.textContent = currentLang === 'zh-CN' ? '◀ 上一页' : '◀ Previous';
+            if (nextBtn) nextBtn.textContent = currentLang === 'zh-CN' ? '下一页 ▶' : 'Next ▶';
+            if (lastBtn) lastBtn.textContent = currentLang === 'zh-CN' ? '末页 ⏭' : 'Last ⏭';
+            
+            // Update pagination info if table is rendered
+            if (predictionTableData && predictionTableData.length > 0) {
+                renderPredictionTable();
+            }
+        }
+
+        // Update dynamic texts that are set by JavaScript
+        function updateDynamicTexts() {
+            // Update placeholders
+            document.querySelectorAll('[data-placeholder-i18n]').forEach(el => {
+                const key = el.getAttribute('data-placeholder-i18n');
+                if (key) {
+                    el.placeholder = t(key);
+                }
+            });
+            
+            // Update button texts that might be dynamically changed
+            const loadDataBtn = document.getElementById('load-data-btn');
+            if (loadDataBtn) {
+                const btnText = loadDataBtn.querySelector('.btn-text');
+                if (btnText && !btnText.textContent.includes('加载中') && !btnText.textContent.includes('Loading')) {
+                    btnText.textContent = '📥 ' + t('loadStockData');
+                }
+            }
+            
+            const refreshBtn = document.getElementById('refresh-btn');
+            if (refreshBtn) {
+                const btnText = refreshBtn.querySelector('span[data-i18n="refreshInterface"]');
+                if (btnText) {
+                    btnText.textContent = '🔄 ' + t('refreshInterface');
+                }
+            }
+            
+            const toggleDetailsBtn = document.getElementById('toggle-details-btn');
+            if (toggleDetailsBtn) {
+                const btnText = toggleDetailsBtn.querySelector('span[data-i18n="viewDetails"]');
+                if (btnText && toggleDetailsBtn.style.display !== 'none') {
+                    const isHidden = document.getElementById('prediction-details')?.style.display === 'none';
+                    btnText.textContent = (isHidden ? '📊 ' : '🔽 ') + (isHidden ? t('viewDetails') : t('hideDetails'));
+                }
+            }
+            
+            // Update predict button text
+            const predictBtn = document.getElementById('predict-btn');
+            if (predictBtn) {
+                const btnText = predictBtn.querySelector('span[data-i18n="startPrediction"]');
+                if (btnText) {
+                    btnText.textContent = '⚡ ' + t('startPrediction');
+                }
+            }
+            
+            // Update prediction tips if not in error state
+            updatePredictionTips();
+        }
+
+        // Toggle language
+        function toggleLanguage() {
+            currentLang = currentLang === 'zh-CN' ? 'en-US' : 'zh-CN';
+            localStorage.setItem('preferredLanguage', currentLang);
+            updateLanguage();
+            console.log('Language switched to:', currentLang);
+        }
+
         // Global variables
         let currentDataFile = null;
         let currentDataInfo = null;
@@ -1244,6 +1565,9 @@
         async function initializeApp() {
             console.log('🚀 Initializing Kronos Web UI...');
             
+            // Initialize language
+            updateLanguage();
+            
             // Check model status on page load
             await updateModelStatus();
             
@@ -1279,15 +1603,23 @@
                 if (status.loaded) {
                     // Model is loaded - mark as loaded and stop checking
                     statusIcon.textContent = '✅';
-                    statusText.innerHTML = `<strong>${status.current_model.name}</strong> on <strong>${status.current_model.device.toUpperCase()}</strong>`;
+                    const deviceText = status.current_model.device.toUpperCase();
+                    statusText.innerHTML = `<strong>${status.current_model.name}</strong> on <strong>${deviceText}</strong>`;
+                    // Remove data-i18n to prevent updateLanguage from resetting it
+                    statusText.removeAttribute('data-i18n');
                     modelLoaded = true;
                     updatePredictionTips();
-                    showStatus('success', `模型已就绪: ${status.current_model.name} on ${status.current_model.device}`);
+                    const readyMsg = currentLang === 'zh-CN' 
+                        ? `模型已就绪: ${status.current_model.name} on ${status.current_model.device}`
+                        : `Model ready: ${status.current_model.name} on ${status.current_model.device}`;
+                    showStatus('success', readyMsg);
                     console.log('✅ Model loaded successfully, stopping status checks');
                 } else if (status.available) {
                     // Model library available but not loaded yet
                     statusIcon.textContent = '⏳';
-                    statusText.textContent = '模型正在加载中...';
+                    statusText.textContent = currentLang === 'zh-CN' ? '模型正在加载中...' : 'Model is loading...';
+                    // Remove data-i18n to prevent updateLanguage from resetting it
+                    statusText.removeAttribute('data-i18n');
                     modelLoaded = false;
                     predictBtn.disabled = true;
                     updatePredictionTips();
@@ -1296,11 +1628,16 @@
                 } else {
                     // Model library not available - stop checking
                     statusIcon.textContent = '❌';
-                    statusText.textContent = '模型库不可用';
+                    statusText.textContent = currentLang === 'zh-CN' ? '模型库不可用' : 'Model library unavailable';
+                    // Remove data-i18n to prevent updateLanguage from resetting it
+                    statusText.removeAttribute('data-i18n');
                     modelLoaded = false;
                     predictBtn.disabled = true;
                     updatePredictionTips();
-                    showStatus('error', '模型库不可用，请安装依赖');
+                    const errorMsg = currentLang === 'zh-CN' 
+                        ? '模型库不可用，请安装依赖'
+                        : 'Model library unavailable, please install dependencies';
+                    showStatus('error', errorMsg);
                     console.log('❌ Model library not available, stopping status checks');
                 }
             } catch (error) {
@@ -1308,7 +1645,9 @@
                 const statusIcon = document.getElementById('model-status-icon');
                 const statusText = document.getElementById('model-status-text');
                 statusIcon.textContent = '❌';
-                statusText.textContent = '获取模型状态失败';
+                statusText.textContent = currentLang === 'zh-CN' ? '获取模型状态失败' : 'Failed to get model status';
+                // Remove data-i18n to prevent updateLanguage from resetting it
+                statusText.removeAttribute('data-i18n');
                 modelLoaded = false;
                 document.getElementById('predict-btn').disabled = true;
                 // Retry after 5 seconds on error
@@ -1322,12 +1661,12 @@
             const lookback = parseInt(document.getElementById('lookback-input').value);
             
             if (!symbol) {
-                showStatus('error', '请输入股票代码');
+                showStatus('error', t('pleaseEnterStockCodeError'));
                 return;
             }
             
             if (lookback < 100 || lookback > 2000) {
-                showStatus('error', '历史数据长度必须在100-2000之间');
+                showStatus('error', t('historicalDataLengthRange'));
                 return;
             }
             
@@ -1339,8 +1678,9 @@
                 // Update button to loading state
                 if (btnText) {
                     loadBtn.classList.add('loading');
+                    btnText.textContent = '⏳ ' + t('loadingStockData');
                 } else {
-                    loadBtn.textContent = '⏳ 加载中...';
+                    loadBtn.textContent = '⏳ ' + t('loadingStockData');
                 }
                 
                 // Show loading state in right panel
@@ -1374,6 +1714,9 @@
                     }
                     updatePredictionTips();
                     
+                    // Show success message
+                    showStatus('success', t('dataLoaded'));
+                    
                     console.log('✅ Data loaded successfully:', response.data.data_info);
                 } else {
                     showStatus('error', response.data.error);
@@ -1383,7 +1726,7 @@
                         readyState.style.display = 'flex';
                         const tipsText = document.getElementById('ready-tips-text');
                         if (tipsText) {
-                            tipsText.textContent = '数据加载失败，请重试';
+                            tipsText.textContent = t('dataLoadFailed');
                             tipsText.style.color = '#e53e3e';
                         }
                     }
@@ -1391,7 +1734,10 @@
                 }
             } catch (error) {
                 console.error('❌ Data loading failed:', error);
-                showStatus('error', `数据加载失败: ${error.response?.data?.error || error.message}`);
+                const errorMsg = currentLang === 'zh-CN' 
+                    ? `${t('dataLoadFailedPrefix')}: ${error.response?.data?.error || error.message}`
+                    : `${t('dataLoadFailedPrefix')}: ${error.response?.data?.error || error.message}`;
+                showStatus('error', errorMsg);
                 // Show error in ready state
                 const dataLoadingState = document.getElementById('data-loading-state');
                 const readyState = document.getElementById('prediction-ready-state');
@@ -1400,7 +1746,7 @@
                     readyState.style.display = 'flex';
                     const tipsText = document.getElementById('ready-tips-text');
                     if (tipsText) {
-                        tipsText.textContent = '数据加载失败，请检查网络连接或重试';
+                        tipsText.textContent = t('dataLoadFailedNetwork');
                         tipsText.style.color = '#e53e3e';
                     }
                 }
@@ -1411,9 +1757,9 @@
                 loadBtn.classList.remove('loading');
                 const btnText = loadBtn.querySelector('.btn-text');
                 if (btnText) {
-                    btnText.textContent = '📥 加载股票数据';
+                    btnText.textContent = '📥 ' + t('loadStockData');
                 } else {
-                    loadBtn.textContent = '📥 加载股票数据';
+                    loadBtn.textContent = '📥 ' + t('loadStockData');
                 }
             }
         }
@@ -1424,16 +1770,21 @@
             const predictBtn = document.getElementById('predict-btn');
             if (!tipsText || !predictBtn) return;
             
+            // Don't update if tipsText has error color (red), let it stay until timeout
+            if (tipsText.style.color === 'rgb(229, 62, 62)' || tipsText.style.color === '#e53e3e') {
+                return;
+            }
+            
             if (!modelLoaded) {
-                tipsText.textContent = '模型正在加载中，请稍候...';
+                tipsText.textContent = t('modelLoadingWait');
                 tipsText.style.color = '#718096';
                 predictBtn.disabled = true;
             } else if (!currentDataFile) {
-                tipsText.textContent = '请在左侧输入股票代码并获取数据';
+                tipsText.textContent = t('readyHint');
                 tipsText.style.color = '#718096';
                 predictBtn.disabled = true;
                 } else {
-                tipsText.textContent = '一切就绪！可以开始预测了';
+                tipsText.textContent = t('readyAllSet');
                 tipsText.style.color = '#48bb78';
                 predictBtn.disabled = false;
             }
@@ -1489,7 +1840,8 @@
                 try {
                     const startDate = new Date(dataInfo.start_date);
                     const endDate = new Date(dataInfo.end_date);
-                    timeRangeEl.textContent = `${startDate.toLocaleDateString('zh-CN')} ~ ${endDate.toLocaleDateString('zh-CN')}`;
+                    const locale = currentLang === 'zh-CN' ? 'zh-CN' : 'en-US';
+                    timeRangeEl.textContent = `${startDate.toLocaleDateString(locale)} ~ ${endDate.toLocaleDateString(locale)}`;
                 } catch (e) {
                     timeRangeEl.textContent = `${dataInfo.start_date} ~ ${dataInfo.end_date}`;
                 }
@@ -1497,7 +1849,8 @@
             
             const priceRangeEl = document.getElementById('data-price-range');
             if (priceRangeEl && dataInfo.price_range) {
-                priceRangeEl.textContent = `${dataInfo.price_range.min.toFixed(2)} ~ ${dataInfo.price_range.max.toFixed(2)} 元`;
+                const yuanText = t('yuan');
+                priceRangeEl.textContent = `${dataInfo.price_range.min.toFixed(2)} ~ ${dataInfo.price_range.max.toFixed(2)} ${yuanText}`;
             }
             
             const latestPriceEl = document.getElementById('data-latest-price');
@@ -1513,20 +1866,20 @@
         // Start prediction
         async function startPrediction() {
             if (!currentDataFile) {
-                showStatus('error', '请先加载股票数据');
+                showStatus('error', t('pleaseLoadDataFirst'));
                 const tipsText = document.getElementById('ready-tips-text');
                 if (tipsText) {
-                    tipsText.textContent = '请先加载股票数据';
+                    tipsText.textContent = t('pleaseLoadDataFirst');
                     tipsText.style.color = '#e53e3e';
                 }
                 return;
             }
             
             if (!modelLoaded) {
-                showStatus('error', '模型未加载。请检查服务器日志或等待模型加载。');
+                showStatus('error', t('modelNotLoadedError'));
                 const tipsText = document.getElementById('ready-tips-text');
                 if (tipsText) {
-                    tipsText.textContent = '模型未加载，请稍候...';
+                    tipsText.textContent = t('modelNotLoaded');
                     tipsText.style.color = '#e53e3e';
                 }
                 return;
@@ -1566,7 +1919,7 @@
                 if (response.data.success) {
                     // Display prediction results
                     displayPredictionResult(response.data);
-                    showStatus('success', response.data.message);
+                    showStatus('success', t('predictionCompleted'));
                 } else {
                     showStatus('error', response.data.error);
                     // Show error in ready state
@@ -1577,14 +1930,17 @@
                         readyState.style.display = 'flex';
                         const tipsText = document.getElementById('ready-tips-text');
                         if (tipsText) {
-                            tipsText.textContent = '预测失败，请重试';
+                            tipsText.textContent = t('predictionFailed');
                             tipsText.style.color = '#e53e3e';
                         }
                     }
                 }
             } catch (error) {
                 console.error('❌ Prediction failed:', error);
-                showStatus('error', `预测失败: ${error.response?.data?.error || error.message}`);
+                const errorMsg = currentLang === 'zh-CN' 
+                    ? `${t('predictionFailedPrefix')}: ${error.response?.data?.error || error.message}`
+                    : `${t('predictionFailedPrefix')}: ${error.response?.data?.error || error.message}`;
+                showStatus('error', errorMsg);
                 // Show error in ready state
                 const loadingState = document.getElementById('prediction-loading');
                 const readyState = document.getElementById('prediction-ready-state');
@@ -1593,7 +1949,7 @@
                     readyState.style.display = 'flex';
                     const tipsText = document.getElementById('ready-tips-text');
                     if (tipsText) {
-                        tipsText.textContent = '预测失败，请检查网络连接或重试';
+                        tipsText.textContent = t('predictionFailedNetwork');
                         tipsText.style.color = '#e53e3e';
                     }
                 }
@@ -1701,7 +2057,8 @@
             pageData.forEach(item => {
                 const row = document.createElement('tr');
                 const date = new Date(item.timestamp);
-                const dateStr = date.toLocaleDateString('zh-CN', { 
+                const locale = currentLang === 'zh-CN' ? 'zh-CN' : 'en-US';
+                const dateStr = date.toLocaleDateString(locale, { 
                     year: 'numeric', 
                     month: '2-digit', 
                     day: '2-digit' 
@@ -1721,7 +2078,11 @@
             // Update pagination info
             const infoText = document.getElementById('pagination-info-text');
             if (infoText) {
-                infoText.textContent = `显示 ${startIndex + 1}-${endIndex} 条，共 ${predictionTableData.length} 条`;
+                if (currentLang === 'zh-CN') {
+                    infoText.textContent = `显示 ${startIndex + 1}-${endIndex} 条，共 ${predictionTableData.length} 条`;
+                } else {
+                    infoText.textContent = `Showing ${startIndex + 1}-${endIndex} of ${predictionTableData.length} items`;
+                }
             }
 
             // Update pagination controls
@@ -1736,11 +2097,35 @@
             const lastBtn = document.getElementById('pagination-last');
             const pagesContainer = document.getElementById('pagination-pages');
 
-            // Update button states
-            if (firstBtn) firstBtn.disabled = currentPage === 1;
-            if (prevBtn) prevBtn.disabled = currentPage === 1;
-            if (nextBtn) nextBtn.disabled = currentPage === totalPages;
-            if (lastBtn) lastBtn.disabled = currentPage === totalPages;
+            // Update button states and texts
+            if (firstBtn) {
+                firstBtn.disabled = currentPage === 1;
+                const firstBtnText = firstBtn.textContent;
+                if (firstBtnText.includes('首页') || firstBtnText.includes('First')) {
+                    firstBtn.textContent = currentLang === 'zh-CN' ? '⏮ 首页' : '⏮ First';
+                }
+            }
+            if (prevBtn) {
+                prevBtn.disabled = currentPage === 1;
+                const prevBtnText = prevBtn.textContent;
+                if (prevBtnText.includes('上一页') || prevBtnText.includes('Previous')) {
+                    prevBtn.textContent = currentLang === 'zh-CN' ? '◀ 上一页' : '◀ Previous';
+                }
+            }
+            if (nextBtn) {
+                nextBtn.disabled = currentPage === totalPages;
+                const nextBtnText = nextBtn.textContent;
+                if (nextBtnText.includes('下一页') || nextBtnText.includes('Next')) {
+                    nextBtn.textContent = currentLang === 'zh-CN' ? '下一页 ▶' : 'Next ▶';
+                }
+            }
+            if (lastBtn) {
+                lastBtn.disabled = currentPage === totalPages;
+                const lastBtnText = lastBtn.textContent;
+                if (lastBtnText.includes('末页') || lastBtnText.includes('Last')) {
+                    lastBtn.textContent = currentLang === 'zh-CN' ? '末页 ⏭' : 'Last ⏭';
+                }
+            }
 
             // Generate page numbers
             if (pagesContainer) {
@@ -1907,8 +2292,11 @@
             // Update prediction tips
             updatePredictionTips();
             
+            // Update pagination button texts
+            updatePaginationButtonTexts();
+            
             // Show success message
-            showStatus('success', '界面已刷新，可以重新开始');
+            showStatus('success', t('interfaceRefreshedMsg'));
         }
 
         // Toggle detailed prediction data
@@ -1921,7 +2309,14 @@
             if (detailsDiv.style.display === 'none') {
                 // Show details
                 detailsDiv.style.display = 'block';
-                if (toggleBtn) toggleBtn.textContent = '🔽 隐藏详细数据';
+                if (toggleBtn) {
+                    const btnText = toggleBtn.querySelector('span[data-i18n="viewDetails"]');
+                    if (btnText) {
+                        btnText.textContent = '🔽 ' + t('hideDetails');
+                } else {
+                        toggleBtn.textContent = '🔽 ' + t('hideDetails');
+                    }
+                }
                 
                 // Populate price stats
                 if (currentPredictionResult.price_stats) {
@@ -1954,7 +2349,14 @@
             } else {
                 // Hide details
                 detailsDiv.style.display = 'none';
-                if (toggleBtn) toggleBtn.textContent = '📊 查看详细数据';
+                if (toggleBtn) {
+                    const btnText = toggleBtn.querySelector('span[data-i18n="viewDetails"]');
+                    if (btnText) {
+                        btnText.textContent = '📊 ' + t('viewDetails');
+                    } else {
+                        toggleBtn.textContent = '📊 ' + t('viewDetails');
+                    }
+                }
             }
         }
 
@@ -2036,6 +2438,12 @@
 
         // Set up event listeners
         function setupEventListeners() {
+            // Language toggle button
+            const langToggle = document.getElementById('lang-toggle');
+            if (langToggle) {
+                langToggle.addEventListener('click', toggleLanguage);
+            }
+            
             // Load data button
             document.getElementById('load-data-btn').addEventListener('click', loadData);
             
