@@ -297,6 +297,65 @@ def create_prediction_chart(df, pred_df, lookback, pred_len, actual_df=None, his
         else:
             pred_timestamps = range(len(historical_df), len(historical_df) + len(pred_df))
     
+    # Determine date format based on data range
+    def determine_date_format(all_timestamps):
+        """Determine appropriate date format based on data range"""
+        if not all_timestamps or len(all_timestamps) < 2:
+            return 'day', 1  # Default to day, show every day
+        
+        total_days = (all_timestamps[-1] - all_timestamps[0]).days
+        data_points = len(all_timestamps)
+        
+        # Calculate average days per data point
+        avg_days_per_point = total_days / data_points if data_points > 0 else 1
+        
+        # Determine format and interval based on data density and range
+        if total_days <= 30:  # Less than 1 month
+            if data_points <= 30:
+                return 'day', 1  # Show every day
+            elif data_points <= 60:
+                return 'day', 2  # Show every 2 days
+            else:
+                return 'day', 3  # Show every 3 days
+        elif total_days <= 90:  # Less than 3 months
+            if data_points <= 60:
+                return 'day', 1  # Show every day
+            elif data_points <= 120:
+                return 'day', 3  # Show every 3 days
+            else:
+                return 'day', 7  # Show every week
+        elif total_days <= 180:  # Less than 6 months
+            if data_points <= 120:
+                return 'day', 7  # Show every week
+            else:
+                return 'day', 14  # Show every 2 weeks
+        elif total_days <= 365:  # Less than 1 year
+            if data_points <= 180:
+                return 'day', 14  # Show every 2 weeks
+            else:
+                return 'week', 1  # Show every week
+        elif total_days <= 730:  # Less than 2 years
+            if data_points <= 240:
+                return 'week', 1  # Show every week
+            else:
+                return 'week', 2  # Show every 2 weeks
+        else:  # More than 2 years
+            if data_points <= 360:
+                return 'month', 1  # Show every month
+            elif data_points <= 720:
+                return 'month', 2  # Show every 2 months
+            else:
+                return 'month', 3  # Show every 3 months
+    
+    # Get all timestamps for date format determination
+    all_timestamps = []
+    if 'timestamps' in historical_df.columns:
+        all_timestamps = list(historical_df['timestamps'])
+    if pred_timestamps is not None:
+        all_timestamps.extend(pred_timestamps)
+    
+    date_format, date_interval = determine_date_format(all_timestamps) if all_timestamps else ('day', 1)
+    
     # Create subplots: price chart on top, volume chart on bottom
     fig = make_subplots(
         rows=2, cols=1,
@@ -354,6 +413,77 @@ def create_prediction_chart(df, pred_df, lookback, pred_len, actual_df=None, his
             showlegend=False
         ), row=2, col=1)
     
+    # Calculate Y-axis ranges
+    # Price range
+    all_prices = []
+    if len(historical_df) > 0:
+        all_prices.extend(historical_df[['open', 'high', 'low', 'close']].values.flatten())
+    if pred_df is not None and len(pred_df) > 0:
+        all_prices.extend(pred_df[['open', 'high', 'low', 'close']].values.flatten())
+    
+    price_min = min(all_prices) if all_prices else 0
+    price_max = max(all_prices) if all_prices else 100
+    price_padding = (price_max - price_min) * 0.1  # 10% padding
+    price_range = [max(0, price_min - price_padding), price_max + price_padding]
+    
+    # Volume range
+    all_volumes = []
+    if 'volume' in historical_df.columns and len(historical_df) > 0:
+        all_volumes.extend(historical_df['volume'].values)
+    if pred_df is not None and len(pred_df) > 0 and 'volume' in pred_df.columns:
+        all_volumes.extend(pred_df['volume'].values)
+    
+    volume_min = min(all_volumes) if all_volumes else 0
+    volume_max = max(all_volumes) if all_volumes else 1000
+    volume_padding = (volume_max - volume_min) * 0.1 if volume_max > volume_min else volume_max * 0.1
+    volume_range = [max(0, volume_min - volume_padding), volume_max + volume_padding]
+    
+    # Add vertical line to separate historical and prediction data
+    if pred_timestamps is not None and len(pred_timestamps) > 0:
+        # Get the boundary timestamp (last historical or first prediction)
+        if 'timestamps' in historical_df.columns and len(historical_df) > 0:
+            boundary_timestamp = historical_df['timestamps'].iloc[-1]
+        else:
+            boundary_timestamp = pred_timestamps[0]
+        
+        # Add vertical line to price chart using shapes
+        fig.add_shape(
+            type="line",
+            x0=boundary_timestamp,
+            x1=boundary_timestamp,
+            y0=0,
+            y1=1,
+            yref="y domain",
+            line=dict(color="#FF9800", width=2, dash="dash"),
+            row=1, col=1
+        )
+        
+        # Add annotation for the boundary line
+        fig.add_annotation(
+            x=boundary_timestamp,
+            y=1,
+            yref="y domain",
+            text="历史/预测分界",
+            showarrow=False,
+            xanchor="left",
+            bgcolor="rgba(255, 152, 0, 0.8)",
+            bordercolor="#FF9800",
+            font=dict(color="white", size=10),
+            row=1, col=1
+        )
+        
+        # Add vertical line to volume chart
+        fig.add_shape(
+            type="line",
+            x0=boundary_timestamp,
+            x1=boundary_timestamp,
+            y0=0,
+            y1=1,
+            yref="y domain",
+            line=dict(color="#FF9800", width=2, dash="dash"),
+            row=2, col=1
+        )
+    
     # Update layout
     fig.update_layout(
         template='plotly_white',
@@ -362,24 +492,64 @@ def create_prediction_chart(df, pred_df, lookback, pred_len, actual_df=None, his
         margin=dict(l=50, r=50, t=50, b=50)
     )
     
-    # Update y-axis labels
-    fig.update_yaxes(title_text="价格（元）", row=1, col=1)
-    fig.update_yaxes(title_text="成交量", row=2, col=1)
+    # Update y-axis labels and ranges
+    fig.update_yaxes(
+        title_text="价格（元）",
+        range=price_range,
+        row=1, col=1
+    )
+    fig.update_yaxes(
+        title_text="成交量",
+        range=volume_range,
+        row=2, col=1
+    )
     fig.update_xaxes(title_text="日期", row=2, col=1)
     
-    # Ensure x-axis time continuity
-    if 'timestamps' in historical_df.columns:
-        all_timestamps = list(historical_df['timestamps'])
-        if pred_timestamps is not None:
-            all_timestamps.extend(pred_timestamps)
-        if all_timestamps:
-            all_timestamps = sorted(all_timestamps)
-            fig.update_xaxes(
-                range=[all_timestamps[0], all_timestamps[-1]],
-                rangeslider_visible=False,
-                type='date',
-                row=2, col=1
-            )
+    # Set date format based on data range
+    if all_timestamps:
+        all_timestamps_sorted = sorted(all_timestamps)
+        
+        # Configure x-axis date format with interval
+        if date_format == 'day':
+            # Daily - use milliseconds for dtick with interval
+            dtick_ms = date_interval * 24 * 60 * 60 * 1000  # N days in milliseconds
+            if date_interval == 1:
+                tickformat = '%Y-%m-%d'
+            elif date_interval <= 7:
+                tickformat = '%m-%d'
+            else:
+                tickformat = '%m-%d'
+        elif date_format == 'week':
+            # Weekly - use milliseconds for dtick with interval
+            dtick_ms = date_interval * 7 * 24 * 60 * 60 * 1000  # N weeks in milliseconds
+            if date_interval == 1:
+                tickformat = '%Y-%m-%d'
+            else:
+                tickformat = '%m-%d'
+        else:  # month
+            # Monthly - approximate 30 days per month
+            dtick_ms = date_interval * 30 * 24 * 60 * 60 * 1000  # N months in milliseconds
+            if date_interval == 1:
+                tickformat = '%Y-%m'
+            else:
+                tickformat = '%Y-%m'
+        
+        fig.update_xaxes(
+            range=[all_timestamps_sorted[0], all_timestamps_sorted[-1]],
+            rangeslider_visible=False,
+            type='date',
+            dtick=dtick_ms,
+            tickformat=tickformat,
+            row=2, col=1
+        )
+        # Also update the top x-axis (shared)
+        fig.update_xaxes(
+            range=[all_timestamps_sorted[0], all_timestamps_sorted[-1]],
+            type='date',
+            dtick=dtick_ms,
+            tickformat=tickformat,
+            row=1, col=1
+        )
     
     return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 

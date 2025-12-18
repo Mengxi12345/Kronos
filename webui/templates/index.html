@@ -28,19 +28,94 @@
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
             color: white;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.95) 100%);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
         }
 
         .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4), 0 0 30px rgba(255, 255, 255, 0.3);
+            font-weight: 700;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInDown 0.8s ease-out;
         }
 
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
+        .header .subtitle {
+            font-size: 1.4rem;
+            opacity: 0.95;
+            font-weight: 300;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .header .tagline {
+            font-size: 1rem;
+            opacity: 0.85;
+            margin-top: 10px;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .main-content {
@@ -327,6 +402,17 @@
             background: #f7fafc;
             border-radius: 12px;
             border: 1px solid #e2e8f0;
+            overflow-x: hidden;
+            overflow-y: hidden;
+            width: 100%;
+            box-sizing: border-box;
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        
+        /* Hide scrollbars for prediction details */
+        .prediction-details::-webkit-scrollbar {
+            display: none;
         }
 
         .prediction-details h3 {
@@ -395,9 +481,21 @@
 
         .table-container {
             overflow-x: hidden;
+            overflow-y: hidden;
             background: white;
             border-radius: 8px;
             border: 1px solid #e2e8f0;
+            width: 100%;
+        }
+        
+        /* Hide scrollbars for table container */
+        .table-container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .table-container {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
         }
 
         .prediction-table {
@@ -744,8 +842,22 @@
                 padding: 10px;
             }
             
+            .header {
+                padding: 30px 15px;
+                margin-bottom: 25px;
+            }
+            
             .header h1 {
-                font-size: 2rem;
+                font-size: 2.2rem;
+                letter-spacing: 1px;
+            }
+            
+            .header .subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .header .tagline {
+                font-size: 0.9rem;
             }
         }
     </style>
@@ -753,8 +865,11 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚀 Kronos Financial Prediction Web UI</h1>
-            <p>AI-based financial K-line data prediction analysis platform</p>
+            <div class="header-content">
+                <h1>Kronos 智能金融预测平台</h1>
+                <p class="subtitle">基于深度学习的K线数据预测分析系统</p>
+                <p class="tagline">AI-Powered Financial K-Line Prediction & Analysis Platform</p>
+            </div>
         </div>
 
         <div class="main-content">
@@ -768,7 +883,7 @@
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <span id="model-status-icon">⏳</span>
                             <span id="model-status-text">Loading model status...</span>
-                        </div>
+                </div>
                     </div>
                     <small class="form-text">Model is automatically loaded on startup</small>
                 </div>
@@ -846,11 +961,16 @@
             </div>
 
             <div class="chart-container">
-                <h2 style="margin-bottom: 15px;">📈 预测结果图表</h2>
-                <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
-                    <button id="toggle-details-btn" class="btn btn-secondary" style="display: none; width: auto; padding: 10px 20px; font-size: 14px;">
-                        📊 查看详细数据
-                    </button>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h2 style="margin: 0;">📈 预测结果图表</h2>
+                    <div style="display: flex; gap: 10px;">
+                        <button id="refresh-btn" class="btn btn-secondary" style="width: auto; padding: 10px 20px; font-size: 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white;">
+                            🔄 刷新界面
+                        </button>
+                        <button id="toggle-details-btn" class="btn btn-secondary" style="display: none; width: auto; padding: 10px 20px; font-size: 14px;">
+                            📊 查看详细数据
+                        </button>
+                    </div>
                 </div>
                 
                 <!-- Data Loading State -->
@@ -1159,7 +1279,7 @@
                 if (status.loaded) {
                     // Model is loaded - mark as loaded and stop checking
                     statusIcon.textContent = '✅';
-                    statusText.innerHTML = `<strong>${status.current_model.name}</strong> (${status.current_model.params}) on <strong>${status.current_model.device.toUpperCase()}</strong>`;
+                    statusText.innerHTML = `<strong>${status.current_model.name}</strong> on <strong>${status.current_model.device.toUpperCase()}</strong>`;
                     modelLoaded = true;
                     updatePredictionTips();
                     showStatus('success', `模型已就绪: ${status.current_model.name} on ${status.current_model.device}`);
@@ -1312,7 +1432,7 @@
                 tipsText.textContent = '请在左侧输入股票代码并获取数据';
                 tipsText.style.color = '#718096';
                 predictBtn.disabled = true;
-            } else {
+                } else {
                 tipsText.textContent = '一切就绪！可以开始预测了';
                 tipsText.style.color = '#48bb78';
                 predictBtn.disabled = false;
@@ -1522,9 +1642,9 @@
             // Show chart
             if (chartDiv) {
                 chartDiv.style.display = 'block';
-                // Display chart
-                const chartData = JSON.parse(result.chart);
-                Plotly.newPlot('chart', chartData.data, chartData.layout);
+            // Display chart
+            const chartData = JSON.parse(result.chart);
+            Plotly.newPlot('chart', chartData.data, chartData.layout);
                 
                 // Double-check to ensure loading states are hidden after a short delay
                 setTimeout(() => {
@@ -1730,6 +1850,67 @@
             }
         }
 
+        // Refresh interface - reset to initial state
+        function refreshInterface() {
+            // Clear all global variables
+            currentDataFile = null;
+            currentDataInfo = null;
+            currentPredictionResult = null;
+            predictionTableData = [];
+            currentPage = 1;
+            
+            // Hide chart and details
+            const chartDiv = document.getElementById('chart');
+            const detailsDiv = document.getElementById('prediction-details');
+            const toggleBtn = document.getElementById('toggle-details-btn');
+            const dataInfoDiv = document.getElementById('data-info');
+            
+            if (chartDiv) chartDiv.style.display = 'none';
+            if (detailsDiv) detailsDiv.style.display = 'none';
+            if (toggleBtn) toggleBtn.style.display = 'none';
+            if (dataInfoDiv) {
+                dataInfoDiv.style.display = 'none';
+                dataInfoDiv.classList.remove('loaded');
+            }
+            
+            // Show ready state
+            const readyState = document.getElementById('prediction-ready-state');
+            if (readyState) {
+                readyState.style.display = 'flex';
+            }
+            
+            // Clear data info display
+            document.getElementById('data-symbol').textContent = '-';
+            document.getElementById('data-days').textContent = '-';
+            document.getElementById('data-time-range').textContent = '-';
+            document.getElementById('data-price-range').textContent = '-';
+            document.getElementById('data-latest-price').textContent = '-';
+            
+            // Clear stock code and lookback inputs
+            document.getElementById('stock-code-input').value = '';
+            document.getElementById('lookback-input').value = '400';
+            
+            // Reset prediction parameters to defaults
+            document.getElementById('pred-len').value = '120';
+            document.getElementById('temperature').value = '1.0';
+            document.getElementById('temperature-value').textContent = '1.0';
+            document.getElementById('top-p').value = '0.9';
+            document.getElementById('top-p-value').textContent = '0.9';
+            document.getElementById('sample-count').value = '1';
+            
+            // Disable predict button
+            const predictBtn = document.getElementById('predict-btn');
+            if (predictBtn) {
+                predictBtn.disabled = true;
+            }
+            
+            // Update prediction tips
+            updatePredictionTips();
+            
+            // Show success message
+            showStatus('success', '界面已刷新，可以重新开始');
+        }
+
         // Toggle detailed prediction data
         function togglePredictionDetails() {
             const detailsDiv = document.getElementById('prediction-details');
@@ -1869,6 +2050,12 @@
             
             // Setup pagination handlers
             setupPaginationHandlers();
+            
+            // Refresh button handler
+            const refreshBtn = document.getElementById('refresh-btn');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', refreshInterface);
+            }
             
             // Prediction quality parameter sliders
             document.getElementById('temperature').addEventListener('input', function() {
