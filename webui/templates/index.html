@@ -1339,8 +1339,8 @@
                         <span class="label-text" data-i18n="historicalDataLength">历史数据长度:</span>
                         <span class="help-icon" title="点击查看提示">?</span>
                     </label>
-                    <input type="number" id="lookback-input" value="400" min="100" max="2000" step="50">
-                    <small class="form-text" data-i18n="historicalDataHint">用于预测的历史数据长度（100-2000，推荐400）</small>
+                    <input type="number" id="lookback-input" value="466" min="100" max="2000" step="50">
+                    <small class="form-text" data-i18n="historicalDataHint">用于预测的历史数据长度（100-2000，推荐466）</small>
                 </div>
 
                 <button id="load-data-btn" class="btn btn-secondary">
@@ -1365,8 +1365,8 @@
                         <span class="label-text" data-i18n="predictionLength">预测长度:</span>
                         <span class="help-icon" title="点击查看提示">?</span>
                     </label>
-                    <input type="number" id="pred-len" value="120" min="10" max="500" step="10">
-                    <small class="form-text" data-i18n="predictionLengthHint">预测未来多少个数据点（推荐120）</small>
+                    <input type="number" id="pred-len" value="112" min="10" max="500" step="10">
+                    <small class="form-text" data-i18n="predictionLengthHint">预测未来多少个数据点（推荐112）</small>
                 </div>
 
                 <!-- Prediction Quality Parameters -->
@@ -1663,7 +1663,7 @@
                 'stockCodePlaceholder': '例如: 000001, 002594',
                 'stockCodeHint': '输入A股股票代码（如：000001 表示平安银行）',
                 'historicalDataLength': '历史数据长度',
-                'historicalDataHint': '用于预测的历史数据长度（100-2000，推荐400）',
+                'historicalDataHint': '用于预测的历史数据长度（100-2000，推荐466）',
                 'loadStockData': '加载股票数据',
                 'loadingStockData': '加载中...',
                 'dataInfo': '数据信息',
@@ -1682,7 +1682,7 @@
                 'interfaceRefreshedMsg': '界面已刷新，可以重新开始',
                 'modelNotLoadedError': '模型未加载。请检查服务器日志或等待模型加载。',
                 'predictionLength': '预测长度',
-                'predictionLengthHint': '预测未来多少个数据点（推荐120）',
+                'predictionLengthHint': '预测未来多少个数据点（推荐112）',
                 'temperature': '预测温度 (T)',
                 'temperatureHint': '控制预测随机性，值越高预测越多样化，值越低预测越保守',
                 'topP': '核采样参数 (top_p)',
@@ -1763,7 +1763,7 @@
                 'stockCodePlaceholder': 'e.g.: 000001, 002594',
                 'stockCodeHint': 'Enter A-share stock code (e.g.: 000001 represents Ping An Bank)',
                 'historicalDataLength': 'Historical Data Length',
-                'historicalDataHint': 'Historical data length for prediction (100-2000, recommended 400)',
+                'historicalDataHint': 'Historical data length for prediction (100-2000, recommended 466)',
                 'loadStockData': 'Load Stock Data',
                 'loadingStockData': 'Loading...',
                 'dataInfo': 'Data Information',
@@ -1782,7 +1782,7 @@
                 'interfaceRefreshedMsg': 'Interface refreshed, ready to start',
                 'modelNotLoadedError': 'Model not loaded. Please check server logs or wait for model to load.',
                 'predictionLength': 'Prediction Length',
-                'predictionLengthHint': 'Number of future data points to predict (recommended 120)',
+                'predictionLengthHint': 'Number of future data points to predict (recommended 112)',
                 'temperature': 'Prediction Temperature (T)',
                 'temperatureHint': 'Controls prediction randomness, higher values make predictions more diverse, lower values make predictions more conservative',
                 'topP': 'Nucleus Sampling Parameter (top_p)',
@@ -2714,10 +2714,10 @@
             
             // Clear stock code and lookback inputs
             document.getElementById('stock-code-input').value = '';
-            document.getElementById('lookback-input').value = '400';
+            document.getElementById('lookback-input').value = '466';
             
             // Reset prediction parameters to defaults
-            document.getElementById('pred-len').value = '120';
+            document.getElementById('pred-len').value = '112';
             document.getElementById('temperature').value = '1.0';
             document.getElementById('temperature-value').textContent = '1.0';
             document.getElementById('top-p').value = '0.9';
