@@ -272,28 +272,94 @@ def save_prediction_results(file_path, prediction_type, prediction_results, actu
         print(f"Failed to save prediction results: {e}")
         return None
 
-def create_prediction_chart(df, pred_df, lookback, pred_len, actual_df=None, historical_start_idx=0):
-    """Create prediction chart with price candlestick and volume bar chart"""
+def create_prediction_chart(df, pred_df, lookback, pred_len, actual_df=None, historical_start_idx=0, lang='zh-CN'):
+    """Create prediction chart with price candlestick and volume bar chart
+    
+    Args:
+        df: Historical data DataFrame
+        pred_df: Prediction data DataFrame
+        lookback: Historical data length
+        pred_len: Prediction length
+        actual_df: Actual data DataFrame (optional)
+        historical_start_idx: Start index for historical data
+        lang: Language code ('zh-CN' or 'en-US')
+    """
     from plotly.subplots import make_subplots
+    
+    # Translation dictionary
+    translations = {
+        'zh-CN': {
+            'price_chart_title': '收盘价预测K线图（元）',
+            'volume_chart_title': '成交量矩阵图',
+            'price_yaxis': '价格（元）',
+            'volume_yaxis': '成交量',
+            'date_xaxis': '日期',
+            'boundary_label': '历史/预测分界'
+        },
+        'en-US': {
+            'price_chart_title': 'Closing Price Prediction K-line Chart (Yuan)',
+            'volume_chart_title': 'Volume Matrix Chart',
+            'price_yaxis': 'Price (Yuan)',
+            'volume_yaxis': 'Volume',
+            'date_xaxis': 'Date',
+            'boundary_label': 'History/Prediction Boundary'
+        }
+    }
+    
+    # Get translations for current language
+    t = translations.get(lang, translations['zh-CN'])
     
     # Use specified historical data start position
     if historical_start_idx + lookback + pred_len <= len(df):
-        historical_df = df.iloc[historical_start_idx:historical_start_idx+lookback]
+        historical_df = df.iloc[historical_start_idx:historical_start_idx+lookback].copy()
     else:
         available_lookback = min(lookback, len(df) - historical_start_idx)
-        historical_df = df.iloc[historical_start_idx:historical_start_idx+available_lookback]
+        historical_df = df.iloc[historical_start_idx:historical_start_idx+available_lookback].copy()
     
-    # Calculate prediction timestamps
+    # Filter out weekends and holidays (only keep trading days)
+    def is_trading_day(timestamp):
+        """Check if a timestamp is a trading day (exclude weekends)"""
+        if isinstance(timestamp, pd.Timestamp):
+            # Exclude weekends (Saturday=5, Sunday=6)
+            return timestamp.weekday() < 5
+        return True
+    
+    # Filter historical data to only include trading days
+    if 'timestamps' in historical_df.columns:
+        trading_mask = historical_df['timestamps'].apply(is_trading_day)
+        historical_df = historical_df[trading_mask].reset_index(drop=True)
+    
+    # Calculate prediction timestamps (only trading days)
     pred_timestamps = None
     if pred_df is not None and len(pred_df) > 0:
         if 'timestamps' in df.columns and len(historical_df) > 0:
             last_timestamp = historical_df['timestamps'].iloc[-1]
-            time_diff = df['timestamps'].iloc[1] - df['timestamps'].iloc[0] if len(df) > 1 else pd.Timedelta(hours=1)
-            pred_timestamps = pd.date_range(
+            time_diff = df['timestamps'].iloc[1] - df['timestamps'].iloc[0] if len(df) > 1 else pd.Timedelta(days=1)
+            
+            # Generate timestamps and filter to only trading days
+            all_pred_timestamps = pd.date_range(
                 start=last_timestamp + time_diff,
-                periods=len(pred_df),
+                periods=len(pred_df) * 2,  # Generate more to account for weekends
                 freq=time_diff
             )
+            # Filter to only trading days
+            trading_timestamps = [ts for ts in all_pred_timestamps if is_trading_day(ts)]
+            # Take only the number we need
+            pred_timestamps = pd.DatetimeIndex(trading_timestamps[:len(pred_df)])
+            
+            # If we don't have enough trading days, pad with the last timestamp
+            if len(pred_timestamps) < len(pred_df):
+                remaining = len(pred_df) - len(pred_timestamps)
+                last_ts = pred_timestamps[-1] if len(pred_timestamps) > 0 else last_timestamp
+                additional = pd.date_range(
+                    start=last_ts + time_diff,
+                    periods=remaining * 2,
+                    freq=time_diff
+                )
+                additional_trading = [ts for ts in additional if is_trading_day(ts)][:remaining]
+                if additional_trading:
+                    pred_timestamps = pred_timestamps.union(pd.DatetimeIndex(additional_trading))
+                pred_timestamps = pred_timestamps[:len(pred_df)]
         else:
             pred_timestamps = range(len(historical_df), len(historical_df) + len(pred_df))
     
@@ -360,12 +426,15 @@ def create_prediction_chart(df, pred_df, lookback, pred_len, actual_df=None, his
     fig = make_subplots(
         rows=2, cols=1,
         shared_xaxes=True,
-        vertical_spacing=0.1,
-        row_heights=[0.7, 0.3],
-        subplot_titles=('收盘价预测K线图（元）', '成交量矩阵图')
+        vertical_spacing=0.08,
+        row_heights=[0.72, 0.28],
+        subplot_titles=(
+            f"<b style='font-size:16px; color:#1a1a1a;'>{t['price_chart_title']}</b>",
+            f"<b style='font-size:16px; color:#1a1a1a;'>{t['volume_chart_title']}</b>"
+        )
     )
     
-    # Historical price data (candlestick)
+    # Historical price data (candlestick) - Enhanced colors
     hist_timestamps = historical_df['timestamps'] if 'timestamps' in historical_df.columns else historical_df.index
     fig.add_trace(go.Candlestick(
         x=hist_timestamps,
@@ -374,12 +443,16 @@ def create_prediction_chart(df, pred_df, lookback, pred_len, actual_df=None, his
         low=historical_df['low'],
         close=historical_df['close'],
         name='历史数据',
-        increasing_line_color='#26A69A',
-        decreasing_line_color='#EF5350',
+        increasing_line_color='#10B981',  # Modern green
+        increasing_fillcolor='#10B981',
+        decreasing_line_color='#EF4444',  # Modern red
+        decreasing_fillcolor='#EF4444',
+        line=dict(width=1.5),
+        whiskerwidth=0.8,
         showlegend=False
     ), row=1, col=1)
     
-    # Prediction price data (candlestick)
+    # Prediction price data (candlestick) - Distinctive colors with transparency
     if pred_df is not None and len(pred_df) > 0 and pred_timestamps is not None:
         fig.add_trace(go.Candlestick(
             x=pred_timestamps,
@@ -388,28 +461,40 @@ def create_prediction_chart(df, pred_df, lookback, pred_len, actual_df=None, his
             low=pred_df['low'],
             close=pred_df['close'],
             name='预测数据',
-            increasing_line_color='#66BB6A',
-            decreasing_line_color='#FF7043',
+            increasing_line_color='#34D399',  # Lighter green for prediction
+            increasing_fillcolor='rgba(52, 211, 153, 0.7)',  # Semi-transparent
+            decreasing_line_color='#F87171',  # Lighter red for prediction
+            decreasing_fillcolor='rgba(248, 113, 113, 0.7)',  # Semi-transparent
+            line=dict(width=1.5),
+            whiskerwidth=0.8,
             showlegend=False
         ), row=1, col=1)
     
-    # Historical volume data
+    # Historical volume data - Enhanced styling
     if 'volume' in historical_df.columns:
         fig.add_trace(go.Bar(
             x=hist_timestamps,
             y=historical_df['volume'],
             name='历史成交量',
-            marker_color='#90CAF9',
+            marker=dict(
+                color='#3B82F6',  # Modern blue
+                line=dict(color='#2563EB', width=0.5),
+                opacity=0.85
+            ),
             showlegend=False
         ), row=2, col=1)
     
-    # Prediction volume data
+    # Prediction volume data - Distinctive styling
     if pred_df is not None and len(pred_df) > 0 and pred_timestamps is not None and 'volume' in pred_df.columns:
         fig.add_trace(go.Bar(
             x=pred_timestamps,
             y=pred_df['volume'],
             name='预测成交量',
-            marker_color='#81C784',
+            marker=dict(
+                color='#60A5FA',  # Lighter blue for prediction
+                line=dict(color='#3B82F6', width=0.5),
+                opacity=0.75
+            ),
             showlegend=False
         ), row=2, col=1)
     
@@ -446,7 +531,7 @@ def create_prediction_chart(df, pred_df, lookback, pred_len, actual_df=None, his
         else:
             boundary_timestamp = pred_timestamps[0]
         
-        # Add vertical line to price chart using shapes
+        # Add vertical line to price chart using shapes - Enhanced styling
         fig.add_shape(
             type="line",
             x0=boundary_timestamp,
@@ -454,25 +539,38 @@ def create_prediction_chart(df, pred_df, lookback, pred_len, actual_df=None, his
             y0=0,
             y1=1,
             yref="y domain",
-            line=dict(color="#FF9800", width=2, dash="dash"),
+            line=dict(
+                color="#F59E0B",  # Amber color
+                width=3,
+                dash="dashdot"
+            ),
+            layer="above",
             row=1, col=1
         )
         
-        # Add annotation for the boundary line
+        # Add annotation for the boundary line - Enhanced styling
         fig.add_annotation(
             x=boundary_timestamp,
             y=1,
             yref="y domain",
-            text="历史/预测分界",
-            showarrow=False,
+            text=f"<b>{t['boundary_label']}</b>",
+            showarrow=True,
+            arrowhead=2,
+            arrowsize=1.5,
+            arrowwidth=2,
+            arrowcolor="#F59E0B",
+            ax=0,
+            ay=-30,
             xanchor="left",
-            bgcolor="rgba(255, 152, 0, 0.8)",
-            bordercolor="#FF9800",
-            font=dict(color="white", size=10),
+            bgcolor="rgba(245, 158, 11, 0.95)",
+            bordercolor="#D97706",
+            borderwidth=2,
+            borderpad=6,
+            font=dict(color="white", size=11, family="Arial, sans-serif"),
             row=1, col=1
         )
         
-        # Add vertical line to volume chart
+        # Add vertical line to volume chart - Enhanced styling
         fig.add_shape(
             type="line",
             x0=boundary_timestamp,
@@ -480,30 +578,119 @@ def create_prediction_chart(df, pred_df, lookback, pred_len, actual_df=None, his
             y0=0,
             y1=1,
             yref="y domain",
-            line=dict(color="#FF9800", width=2, dash="dash"),
+            line=dict(
+                color="#F59E0B",
+                width=3,
+                dash="dashdot"
+            ),
+            layer="above",
             row=2, col=1
         )
+        
+        # Add subtle background shading for prediction area
+        if len(pred_timestamps) > 0:
+            pred_start = pred_timestamps[0]
+            pred_end = pred_timestamps[-1]
+            
+            # Add background rectangle for prediction area in price chart
+            fig.add_shape(
+                type="rect",
+                x0=pred_start,
+                x1=pred_end,
+                y0=0,
+                y1=1,
+                yref="y domain",
+                fillcolor="rgba(245, 158, 11, 0.05)",
+                line=dict(width=0),
+                layer="below",
+                row=1, col=1
+            )
+            
+            # Add background rectangle for prediction area in volume chart
+            fig.add_shape(
+                type="rect",
+                x0=pred_start,
+                x1=pred_end,
+                y0=0,
+                y1=1,
+                yref="y domain",
+                fillcolor="rgba(245, 158, 11, 0.05)",
+                line=dict(width=0),
+                layer="below",
+                row=2, col=1
+            )
     
-    # Update layout
+    # Update layout - Enhanced styling
     fig.update_layout(
         template='plotly_white',
-        height=600,
+        height=650,
         showlegend=False,
-        margin=dict(l=50, r=50, t=50, b=50)
+        margin=dict(l=70, r=30, t=80, b=60),
+        paper_bgcolor='#FFFFFF',
+        plot_bgcolor='#FAFBFC',
+        font=dict(
+            family="Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+            size=12,
+            color="#1a1a1a"
+        ),
+        hovermode='x unified',
+        hoverlabel=dict(
+            bgcolor="rgba(255, 255, 255, 0.95)",
+            bordercolor="rgba(0, 0, 0, 0.2)",
+            font_size=11,
+            font_family="Arial, sans-serif",
+            font_color="rgba(0, 0, 0, 0.9)"
+        )
     )
     
-    # Update y-axis labels and ranges
+    # Update y-axis labels and ranges - Enhanced styling
     fig.update_yaxes(
-        title_text="价格（元）",
+        title_text=f"<b>{t['price_yaxis']}</b>",
+        title_font=dict(size=13, color="#374151", family="Arial, sans-serif"),
         range=price_range,
+        gridcolor='rgba(0, 0, 0, 0.08)',
+        gridwidth=1,
+        showgrid=True,
+        zeroline=False,
+        linecolor='rgba(0, 0, 0, 0.15)',
+        linewidth=1.5,
+        tickfont=dict(size=11, color="#6B7280"),
         row=1, col=1
     )
     fig.update_yaxes(
-        title_text="成交量",
+        title_text=f"<b>{t['volume_yaxis']}</b>",
+        title_font=dict(size=13, color="#374151", family="Arial, sans-serif"),
         range=volume_range,
+        gridcolor='rgba(0, 0, 0, 0.08)',
+        gridwidth=1,
+        showgrid=True,
+        zeroline=False,
+        linecolor='rgba(0, 0, 0, 0.15)',
+        linewidth=1.5,
+        tickfont=dict(size=11, color="#6B7280"),
         row=2, col=1
     )
-    fig.update_xaxes(title_text="日期", row=2, col=1)
+    fig.update_xaxes(
+        title_text=f"<b>{t['date_xaxis']}</b>",
+        title_font=dict(size=13, color="#374151", family="Arial, sans-serif"),
+        gridcolor='rgba(0, 0, 0, 0.08)',
+        gridwidth=1,
+        showgrid=True,
+        linecolor='rgba(0, 0, 0, 0.15)',
+        linewidth=1.5,
+        tickfont=dict(size=11, color="#6B7280"),
+        row=2, col=1
+    )
+    # Update top x-axis (shared)
+    fig.update_xaxes(
+        gridcolor='rgba(0, 0, 0, 0.08)',
+        gridwidth=1,
+        showgrid=True,
+        showticklabels=False,
+        linecolor='rgba(0, 0, 0, 0.15)',
+        linewidth=1.5,
+        row=1, col=1
+    )
     
     # Set date format based on data range
     if all_timestamps:
@@ -712,9 +899,12 @@ def predict():
         actual_data = []
         actual_df = None
         
+        # Get language from request (default to 'zh-CN')
+        lang = data.get('lang', 'zh-CN')
+        
         # Create chart - use latest data
         historical_start_idx = max(0, len(df) - lookback)
-        chart_json = create_prediction_chart(df, pred_df, lookback, pred_len, actual_df, historical_start_idx)
+        chart_json = create_prediction_chart(df, pred_df, lookback, pred_len, actual_df, historical_start_idx, lang)
         
         # Prepare prediction result data - use timestamps from y_timestamp
         # y_timestamp already contains the correct future timestamps

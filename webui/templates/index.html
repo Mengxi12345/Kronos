@@ -2149,11 +2149,30 @@
                     if (dataLoadingState) dataLoadingState.style.display = 'none';
                     if (readyState) readyState.style.display = 'flex';
                     
-                    // Update prediction button status and tips
-                    if (modelLoaded) {
-                        document.getElementById('predict-btn').disabled = false;
+                    // Reset error state in tips text and update immediately
+                    const tipsText = document.getElementById('ready-tips-text');
+                    if (tipsText) {
+                        // Reset color to default first
+                        tipsText.style.color = '';
+                        // Update text content based on model status
+                        if (!modelLoaded) {
+                            tipsText.textContent = t('modelLoadingWait');
+                            tipsText.style.color = '#718096';
+                        } else {
+                            tipsText.textContent = t('readyAllSet');
+                            tipsText.style.color = '#48bb78';
+                        }
                     }
-                    updatePredictionTips();
+                    
+                    // Update prediction button status
+                    const predictBtn = document.getElementById('predict-btn');
+                    if (predictBtn) {
+                        if (modelLoaded) {
+                            predictBtn.disabled = false;
+                        } else {
+                            predictBtn.disabled = true;
+                        }
+                    }
                     
                     // Show success message
                     showStatus('success', t('dataLoaded'));
@@ -2187,8 +2206,20 @@
                     readyState.style.display = 'flex';
                     const tipsText = document.getElementById('ready-tips-text');
                     if (tipsText) {
-                        tipsText.textContent = t('dataLoadFailedNetwork');
-                        tipsText.style.color = '#e53e3e';
+                        // 如果当前还没有成功加载过数据，则显示错误提示
+                        if (!currentDataFile) {
+                            tipsText.textContent = t('dataLoadFailedNetwork');
+                            tipsText.style.color = '#e53e3e';
+                        } else {
+                            // 如果之前已经有成功加载的数据，保持“准备就绪”或“等待模型加载”状态，避免与左侧状态矛盾
+                            if (!modelLoaded) {
+                                tipsText.textContent = t('modelLoadingWait');
+                                tipsText.style.color = '#718096';
+                            } else {
+                                tipsText.textContent = t('readyAllSet');
+                                tipsText.style.color = '#48bb78';
+                            }
+                        }
                     }
                 }
             } finally {
@@ -2350,7 +2381,8 @@
                     pred_len: predLen,
                     temperature: temperature,
                     top_p: topP,
-                    sample_count: sampleCount
+                    sample_count: sampleCount,
+                    lang: currentLang  // Pass current language to backend
                 };
                 
                 console.log('🚀 Starting prediction, parameters:', predictionParams);
